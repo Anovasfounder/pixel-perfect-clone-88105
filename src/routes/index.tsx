@@ -127,50 +127,50 @@ function Index() {
       <AnnouncementBar />
 
       {/* Header */}
-      <header className="px-6 md:px-10 bg-white">
-        <div className="flex items-center gap-4 py-3">
-          <img src={LOGO} alt="Logo" className="w-11 h-11 rounded-md object-cover" />
-          <div className="flex-1 max-w-2xl relative">
-            <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-sm pl-2 pr-4 h-10">
-              <div className="w-6 h-6 rounded-full bg-pink-300 flex items-center justify-center mr-2">
+      <header className="px-4 sm:px-6 md:px-10 bg-white">
+        <div className="flex items-center gap-2 sm:gap-4 py-3">
+          <img src={LOGO} alt="Logo" className="w-10 h-10 sm:w-11 sm:h-11 rounded-md object-cover shrink-0" />
+          <div className="flex-1 min-w-0 max-w-2xl relative">
+            <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-sm pl-2 pr-3 sm:pr-4 h-10">
+              <div className="w-6 h-6 rounded-full bg-pink-300 flex items-center justify-center mr-2 shrink-0">
                 <Search className="w-3.5 h-3.5 text-white" />
               </div>
               <input
                 placeholder="What are you looking for ?"
-                className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-400"
+                className="flex-1 min-w-0 bg-transparent outline-none text-sm placeholder:text-gray-400"
               />
             </div>
           </div>
-          <button className="flex items-center gap-1 text-sm font-medium border border-gray-200 rounded-full px-4 h-10">
+          <button className="shrink-0 flex items-center gap-1 text-sm font-medium border border-gray-200 rounded-full px-3 sm:px-4 h-10">
             USD <ChevronDown className="w-4 h-4" />
           </button>
         </div>
-        <nav className="flex flex-wrap items-center gap-6 py-3 text-[13px] font-medium text-gray-800 border-b border-gray-100">
+        <nav className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-2 py-3 text-[12px] sm:text-[13px] font-medium text-gray-800 border-b border-gray-100">
           <span className="text-gray-600">Trending</span>
           <span>Apps</span>
           <span>GAMES</span>
           <span>SOFTWARES</span>
-          <span className="ml-auto">PRIVACY POLICY</span>
+          <span className="sm:ml-auto">PRIVACY POLICY</span>
           <span>TERMS AND CONDITIONS</span>
         </nav>
       </header>
 
       {/* Hero / Browse by categories */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden isolate">
         <img
           src={HERO_BG}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover -z-10"
+          className="absolute inset-0 w-full h-full object-cover z-0"
         />
         {/* Side white vignette */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-32 md:w-56 -z-10 bg-gradient-to-r from-white/80 via-white/30 to-transparent backdrop-blur-[2px]" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-32 md:w-56 -z-10 bg-gradient-to-l from-white/80 via-white/30 to-transparent backdrop-blur-[2px]" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-32 md:w-56 z-[1] bg-gradient-to-r from-white/85 via-white/40 to-transparent backdrop-blur-[2px]" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-32 md:w-56 z-[1] bg-gradient-to-l from-white/85 via-white/40 to-transparent backdrop-blur-[2px]" />
 
-        <div className="px-6 md:px-12 py-14">
-          <h1 className="text-center text-3xl md:text-4xl font-extrabold tracking-wide text-white drop-shadow mb-10">
+        <div className="relative z-10 px-4 sm:px-6 md:px-12 py-10 sm:py-14">
+          <h1 className="text-center text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-wide text-white drop-shadow-lg mb-8 sm:mb-10">
             BROWSE BY CATEGORIES
           </h1>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 max-w-6xl mx-auto">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
@@ -184,9 +184,9 @@ function Index() {
       </section>
 
       {/* Random keys */}
-      <section className="px-6 md:px-12 py-14">
+      <section className="px-4 sm:px-6 md:px-12 py-10 sm:py-14">
         <SectionTitle>Random keys</SectionTitle>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5 max-w-6xl mx-auto mt-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-6xl mx-auto mt-8 sm:mt-10">
           {Array.from({ length: 5 }).map((_, i) => (
             <ProductCard key={i} />
           ))}
@@ -194,15 +194,15 @@ function Index() {
       </section>
 
       {/* Shop by brand */}
-      <section className="px-6 md:px-12 py-10 border-t border-gray-100">
+      <section className="px-4 sm:px-6 md:px-12 py-10 border-t border-gray-100">
         <SectionTitle>Shop by brand</SectionTitle>
-        <div className="flex flex-wrap items-center justify-around gap-8 mt-8 max-w-5xl mx-auto">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 mt-8 max-w-5xl mx-auto">
           {brands.map((b) => (
             <div
               key={b}
-              className="w-20 h-20 rounded-2xl overflow-hidden backdrop-blur-md bg-white/60 border border-white/50 shadow-sm flex items-center justify-center"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl backdrop-blur-md bg-white/60 border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 text-[10px] sm:text-xs font-semibold"
             >
-              <img src={LABEL} alt={b} className="w-full h-full object-cover" />
+              {b}
             </div>
           ))}
         </div>
