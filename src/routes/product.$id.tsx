@@ -20,7 +20,7 @@ export const Route = createFileRoute("/product/$id")({
 
 function ProductPage() {
   const { id } = Route.useParams();
-  const title = id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const title = id.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
