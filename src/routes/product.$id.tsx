@@ -4,7 +4,8 @@ import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ProductCard, defaultProduct } from "@/components/site/ProductCard";
-import { ShoppingCart, ShieldCheck, Zap, BadgeCheck, Star, ChevronRight, Download } from "lucide-react";
+import { ShoppingCart, ShieldCheck, Zap, BadgeCheck, Star, ChevronRight, Plus } from "lucide-react";
+import { useBundle } from "@/components/site/BundleContext";
 
 const PRODUCT_IMG = "https://i.ibb.co/F1zdP7n/Rectangle-207.png";
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/product/$id")({
 function ProductPage() {
   const { id } = Route.useParams();
   const title = id.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+  const { add: addToBundle, open: openBundle } = useBundle();
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
@@ -79,11 +81,20 @@ function ProductPage() {
                   <span className="text-lg line-through text-gray-400 mb-1">₹3,299</span>
                   <span className="ml-auto text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">SAVE 24%</span>
                 </div>
-                <button className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 shadow-lg hover:shadow-xl hover:opacity-95 transition">
+                <button
+                  onClick={() => {
+                    addToBundle({ id, title, subtitle: "Digital key", price: 2499, image: PRODUCT_IMG });
+                    openBundle();
+                  }}
+                  className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 shadow-lg hover:shadow-xl hover:opacity-95 transition"
+                >
                   <ShoppingCart className="w-4 h-4" /> BUY NOW
                 </button>
-                <button className="mt-2 w-full inline-flex items-center justify-center gap-2 h-11 rounded-full text-sm font-semibold text-gray-900 bg-white/70 border border-gray-200 hover:bg-gray-50 transition">
-                  <Download className="w-4 h-4" /> Add to bundle
+                <button
+                  onClick={() => addToBundle({ id, title, subtitle: "Digital key", price: 2499, image: PRODUCT_IMG })}
+                  className="mt-2 w-full inline-flex items-center justify-center gap-2 h-11 rounded-full text-sm font-semibold text-gray-900 bg-white/70 border border-gray-200 hover:bg-gray-50 transition"
+                >
+                  <Plus className="w-4 h-4" /> Add to bundle
                 </button>
               </div>
 

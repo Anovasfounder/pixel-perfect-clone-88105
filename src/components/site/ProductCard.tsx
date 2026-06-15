@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Plus } from "lucide-react";
+import { useBundle } from "./BundleContext";
 
 const PRODUCT_IMG = "https://i.ibb.co/F1zdP7n/Rectangle-207.png";
 
@@ -20,15 +21,34 @@ export const defaultProduct: ProductCardData = {
   price: "₹2,499",
 };
 
+export function parseINR(s: string) {
+  return Number(s.replace(/[^\d]/g, "")) || 0;
+}
+
 export function ProductCard({ product = defaultProduct }: { product?: ProductCardData }) {
+  const { add, open } = useBundle();
+  const img = product.image ?? PRODUCT_IMG;
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    add({ id: product.id, title: product.subtitle, subtitle: product.title, price: parseINR(product.price), image: img });
+    open();
+  };
   return (
-    <div className="group bg-white border border-gray-200/80 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 p-3 flex flex-col rounded-2xl">
-      <div className="aspect-square w-full rounded-xl overflow-hidden mb-3 bg-gray-50">
+    <div className="group relative bg-white border border-gray-200/80 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 p-3 flex flex-col rounded-2xl">
+      <div className="relative aspect-square w-full rounded-xl overflow-hidden mb-3 bg-gray-50">
         <img
-          src={product.image ?? PRODUCT_IMG}
+          src={img}
           alt={product.subtitle}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
+        <button
+          onClick={handleAdd}
+          aria-label="Add to bundle"
+          className="absolute bottom-2 right-2 w-8 h-8 rounded-full grid place-items-center bg-white/85 backdrop-blur-md border border-white/70 shadow-md text-gray-900 hover:bg-fuchsia-600 hover:text-white transition"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
       </div>
       <p className="text-[13px] font-semibold text-gray-900 leading-tight">{product.subtitle}</p>
       <p className="text-[11px] text-gray-500 mt-0.5">{product.title}</p>
