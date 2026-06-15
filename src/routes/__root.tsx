@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { BundleProvider } from "../components/site/BundleContext";
+import { BundleDrawer } from "../components/site/BundleDrawer";
 
 function NotFoundComponent() {
   return (
@@ -122,8 +124,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <BundleProvider>
+        <Outlet />
+        <BundleDrawer />
+      </BundleProvider>
     </QueryClientProvider>
   );
 }
