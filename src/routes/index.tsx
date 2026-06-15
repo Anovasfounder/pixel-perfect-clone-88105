@@ -159,17 +159,8 @@ function Index() {
           </Reveal>
 
           <Reveal>
-            <div className="mt-6 rounded-2xl backdrop-blur-2xl bg-white/70 border border-white/60 shadow-lg overflow-hidden">
-              <FaqItem
-                q="What services do you offer?"
-                a="BundleByte specializes in officially licensed digital keys for apps, games and productivity software. We handle activation, support, and lifetime delivery."
-                defaultOpen
-              />
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="mt-4 rounded-2xl border border-gray-200 px-5 bg-white/60 backdrop-blur-md">
+            <div className="mt-6 rounded-2xl backdrop-blur-2xl bg-white/70 border border-white/60 shadow-lg px-5">
+              <FaqItem q="What services do you offer?" a="BundleByte specializes in officially licensed digital keys for apps, games and productivity software. We handle activation, support, and lifetime delivery." />
               {faqs.map((q) => <FaqItem key={q} q={q} />)}
             </div>
           </Reveal>
