@@ -4,7 +4,7 @@ import { useCategories, useProducts } from "@/lib/adminStore";
 import { FolderPlus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/categories")({
-  component: AdminCategories;
+  component: AdminCategories,
 });
 
 function AdminCategories() {
