@@ -1,6 +1,7 @@
 import { useBundle, formatINR } from "./BundleContext";
 import { X, Minus, Plus, Trash2, ShoppingBag, Sparkles, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
+import { Link } from "@tanstack/react-router";
 
 export function BundleDrawer() {
   const { isOpen, close, items, count, total, setQty, remove, clear } = useBundle();
@@ -118,9 +119,13 @@ export function BundleDrawer() {
             <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Instant delivery · Verified keys
             </div>
-            <button className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 shadow-lg hover:opacity-95 transition">
+            <Link
+              to="/checkout"
+              onClick={close}
+              className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 shadow-lg hover:opacity-95 transition"
+            >
               <ShoppingBag className="w-4 h-4" /> Checkout · {formatINR(total)}
-            </button>
+            </Link>
             <button onClick={clear} className="w-full text-[11px] text-gray-500 hover:text-red-500 transition">
               Clear bundle
             </button>
