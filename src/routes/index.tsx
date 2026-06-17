@@ -5,7 +5,8 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
-import { ProductCard, defaultProduct } from "@/components/site/ProductCard";
+import { ProductCard, defaultProduct, type ProductCardData } from "@/components/site/ProductCard";
+import { useProducts } from "@/lib/db";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -49,6 +50,18 @@ function FaqItem({ q, a, defaultOpen = false }: { q: string; a?: string; default
 }
 
 function Index() {
+  const { items: dbProducts } = useProducts();
+  const products: ProductCardData[] = dbProducts.length
+    ? dbProducts.map((p) => ({
+        id: p.id,
+        title: p.subtitle || p.title,
+        subtitle: p.title,
+        oldPrice: p.oldPrice ? `₹${p.oldPrice.toLocaleString("en-IN")}` : "",
+        price: `₹${p.price.toLocaleString("en-IN")}`,
+        image: p.image || undefined,
+      }))
+    : Array.from({ length: 8 }).map((_, i) => ({ ...defaultProduct, id: `${defaultProduct.id}-ph-${i}` }));
+
   const brands = ["Xbox", "PlayStation", "Unlock", "AI", "Switch", "Joy-Con"];
   const budgets = ["₹499", "₹999", "₹1,999", "₹3,999"];
   const faqs = [
@@ -77,10 +90,10 @@ function Index() {
             </h1>
           </Reveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 max-w-6xl mx-auto">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Reveal key={i} delay={i * 80}>
+            {products.slice(0, 4).map((p, i) => (
+              <Reveal key={p.id} delay={i * 80}>
                 <div className="rounded-3xl p-3 backdrop-blur-2xl bg-white/60 border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
-                  <ProductCard product={{ ...defaultProduct, id: `${defaultProduct.id}-cat-${i}` }} />
+                  <ProductCard product={p} />
                 </div>
               </Reveal>
             ))}
@@ -92,9 +105,9 @@ function Index() {
       <section className="px-4 sm:px-6 md:px-12 py-10 sm:py-14">
         <Reveal><SectionTitle icon={Tag}>Random keys</SectionTitle></Reveal>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-6xl mx-auto mt-8 sm:mt-10">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Reveal key={i} delay={i * 60}>
-              <ProductCard product={{ ...defaultProduct, id: `${defaultProduct.id}-r-${i}` }} />
+          {products.slice(0, 5).map((p, i) => (
+            <Reveal key={p.id + "-r"} delay={i * 60}>
+              <ProductCard product={p} />
             </Reveal>
           ))}
         </div>
@@ -120,12 +133,12 @@ function Index() {
         <div className="mt-10 max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-4 md:auto-rows-fr">
           <Reveal className="md:col-span-2 md:row-span-2">
             <div className="h-full rounded-3xl p-4 backdrop-blur-2xl bg-gradient-to-br from-violet-100/80 via-pink-100/70 to-blue-100/80 border border-white/60 shadow-[0_12px_40px_-10px_rgba(168,85,247,0.35)]">
-              <ProductCard product={{ ...defaultProduct, id: `${defaultProduct.id}-bs-hero` }} />
+              <ProductCard product={products[0] ?? defaultProduct} />
             </div>
           </Reveal>
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Reveal key={i} delay={i * 80}>
-              <ProductCard product={{ ...defaultProduct, id: `${defaultProduct.id}-bs-${i}` }} />
+          {products.slice(1, 4).map((p, i) => (
+            <Reveal key={p.id + "-bs"} delay={i * 80}>
+              <ProductCard product={p} />
             </Reveal>
           ))}
         </div>

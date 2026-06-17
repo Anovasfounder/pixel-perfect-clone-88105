@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -7,7 +7,6 @@ import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ShieldCheck, ArrowRight, CheckCircle2, Mail, User as UserIcon, ExternalLink } from "lucide-react";
 import { addSale } from "@/lib/adminStore";
-import { useBundle, formatINR } from "@/components/site/BundleContext";
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -17,9 +16,7 @@ export const Route = createFileRoute("/checkout")({
     image: typeof s.image === "string" ? s.image : undefined,
     paymentLink: typeof s.paymentLink === "string" ? s.paymentLink : undefined,
   }),
-  head: () => ({
-    meta: [{ title: "Checkout — BundleByte" }],
-  }),
+  head: () => ({ meta: [{ title: "Checkout — BundleByte" }] }),
   component: CheckoutPage,
 });
 
@@ -28,24 +25,15 @@ const schema = z.object({
   email: z.string().trim().email("Enter a valid email").max(160),
 });
 
+const formatINR = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+
 function CheckoutPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
-  const { items, total, clear } = useBundle();
 
-  // Single-product checkout overrides bundle
-  const single = search.productId && search.title && search.price
+  const product = search.productId && search.title && search.price
     ? { id: search.productId, title: search.title, price: Number(search.price), image: search.image, paymentLink: search.paymentLink }
     : null;
-
-  const subtotal = single ? single.price : total;
-  const lineItems = useMemo(
-    () =>
-      single
-        ? [{ id: single.id, title: single.title, price: single.price, qty: 1, image: single.image }]
-        : items.map((i) => ({ id: i.id, title: i.title, price: i.price, qty: i.qty, image: i.image })),
-    [single, items],
-  );
 
   const [form, setForm] = useState({ name: "", email: "" });
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
@@ -63,20 +51,39 @@ function CheckoutPage() {
       return;
     }
     setErrors({});
-    // Record the sale (demo). In production this happens after payment success webhook.
-    lineItems.forEach((li) =>
+    if (product) {
       addSale({
-        productId: li.id,
-        productTitle: li.title,
+        productId: product.id,
+        productTitle: product.title,
         customerName: form.name,
         customerEmail: form.email,
-        amount: li.price * li.qty,
-      }),
-    );
+        amount: product.price,
+      });
+    }
     setReady(true);
   };
 
-  const paymentLink = single?.paymentLink || "https://razorpay.com/payment-link/";
+  const paymentLink = product?.paymentLink || "https://razorpay.com/payment-link/";
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-white">
+        <AnnouncementBar />
+        <Header />
+        <main className="max-w-3xl mx-auto px-5 py-20 text-center">
+          <h1 className="text-2xl font-bold">No product selected</h1>
+          <p className="mt-2 text-gray-600">Head back and pick something to buy.</p>
+          <button
+            onClick={() => navigate({ to: "/" })}
+            className="mt-6 inline-flex items-center gap-2 px-5 h-11 rounded-full text-sm font-bold text-white bg-gradient-to-r from-violet-600 to-fuchsia-600"
+          >
+            Browse products
+          </button>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 via-white to-pink-50 text-gray-900 font-sans">
@@ -92,7 +99,6 @@ function CheckoutPage() {
         </Reveal>
 
         <div className="grid md:grid-cols-[1fr_360px] gap-6">
-          {/* Form */}
           <Reveal>
             <form
               onSubmit={handleSubmit}
@@ -147,47 +153,33 @@ function CheckoutPage() {
                     href={paymentLink}
                     target="_blank"
                     rel="noreferrer"
-                    onClick={() => {
-                      if (!single) clear();
-                    }}
                     className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 shadow-lg hover:opacity-95 transition"
                   >
-                    Pay now · {formatINR(subtotal)} <ExternalLink className="w-4 h-4" />
+                    Pay now · {formatINR(product.price)} <ExternalLink className="w-4 h-4" />
                   </a>
-                  <p className="text-[11px] text-gray-500 text-center">
-                    You'll be redirected to the payment gateway to complete your purchase.
-                  </p>
                 </div>
               )}
             </form>
           </Reveal>
 
-          {/* Summary */}
           <Reveal delay={100}>
             <aside className="rounded-3xl backdrop-blur-2xl bg-white/70 border border-white/70 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.15)] p-5 sticky top-24">
               <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Order summary</p>
-              <ul className="space-y-3 max-h-[260px] overflow-auto">
-                {lineItems.length === 0 ? (
-                  <li className="text-sm text-gray-500">No items. <Link to="/" className="text-fuchsia-600 font-semibold">Browse products →</Link></li>
-                ) : (
-                  lineItems.map((li) => (
-                    <li key={li.id} className="flex gap-3 items-center">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0">
-                        {li.image && <img src={li.image} alt="" className="w-full h-full object-cover" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold truncate">{li.title}</p>
-                        <p className="text-[11px] text-gray-500">Qty {li.qty}</p>
-                      </div>
-                      <span className="text-[13px] font-bold">{formatINR(li.price * li.qty)}</span>
-                    </li>
-                  ))
-                )}
-              </ul>
+              <div className="flex gap-3 items-center">
+                <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                  {product.image && <img src={product.image} alt="" className="w-full h-full object-cover" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold truncate">{product.title}</p>
+                  <p className="text-[11px] text-gray-500">Qty 1</p>
+                </div>
+                <span className="text-[13px] font-bold">{formatINR(product.price)}</span>
+              </div>
               <div className="border-t border-gray-200 mt-4 pt-3 flex items-center justify-between">
                 <span className="text-sm text-gray-600">Total</span>
-                <span className="text-lg font-extrabold">{formatINR(subtotal)}</span>
+                <span className="text-lg font-extrabold">{formatINR(product.price)}</span>
               </div>
+              <Link to="/" className="block text-center text-[12px] text-fuchsia-600 font-semibold mt-3">← Continue shopping</Link>
             </aside>
           </Reveal>
         </div>

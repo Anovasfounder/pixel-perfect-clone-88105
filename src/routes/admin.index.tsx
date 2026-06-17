@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { useProducts, useCategories, useSales, useNewsletter } from "@/lib/adminStore";
+import { useSales, useNewsletter } from "@/lib/adminStore";
+import { useProducts, useCategories } from "@/lib/db";
 import { Package, FolderTree, Mail, TrendingUp, IndianRupee, ShoppingCart, ArrowUpRight } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell, Legend } from "recharts";
 

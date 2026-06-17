@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useProducts, useCategories } from "@/lib/adminStore";
+import { useProducts, useCategories } from "@/lib/db";
 import { PackagePlus, Trash2, Image as ImageIcon, IndianRupee, Link2, Tag, FileText, X } from "lucide-react";
 
 export const Route = createFileRoute("/admin/products")({
@@ -8,14 +8,14 @@ export const Route = createFileRoute("/admin/products")({
 });
 
 function AdminProducts() {
-  const { items, add, remove } = useProducts();
+  const { items, add, remove, loading } = useProducts();
   const { items: categories } = useCategories();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     title: "",
     subtitle: "",
     description: "",
-    categoryId: categories[0]?.id ?? "",
+    categoryId: "",
     price: "",
     oldPrice: "",
     image: "",
@@ -23,30 +23,36 @@ function AdminProducts() {
   });
   const [err, setErr] = useState("");
 
-  const reset = () => setForm({ title: "", subtitle: "", description: "", categoryId: categories[0]?.id ?? "", price: "", oldPrice: "", image: "", paymentLink: "" });
+  const reset = () =>
+    setForm({ title: "", subtitle: "", description: "", categoryId: "", price: "", oldPrice: "", image: "", paymentLink: "" });
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title || !form.categoryId || !form.price || !form.image || !form.paymentLink) {
+    const categoryId = form.categoryId || categories[0]?.id || "";
+    if (!form.title || !categoryId || !form.price || !form.image || !form.paymentLink) {
       setErr("Fill in title, category, price, image and payment link.");
       return;
     }
-    add({
-      title: form.title.trim(),
-      subtitle: form.subtitle.trim(),
-      description: form.description.trim(),
-      categoryId: form.categoryId,
-      price: Number(form.price) || 0,
-      oldPrice: form.oldPrice ? Number(form.oldPrice) : undefined,
-      image: form.image.trim(),
-      paymentLink: form.paymentLink.trim(),
-    });
-    setErr("");
-    reset();
-    setShowForm(false);
+    try {
+      await add.mutateAsync({
+        title: form.title.trim(),
+        subtitle: form.subtitle.trim(),
+        description: form.description.trim(),
+        categoryId,
+        price: Number(form.price) || 0,
+        oldPrice: form.oldPrice ? Number(form.oldPrice) : undefined,
+        image: form.image.trim(),
+        paymentLink: form.paymentLink.trim(),
+      });
+      setErr("");
+      reset();
+      setShowForm(false);
+    } catch (e: any) {
+      setErr(e?.message || "Could not save product.");
+    }
   };
 
-  const catName = (id: string) => categories.find((c) => c.id === id)?.name ?? "—";
+  const catName = (id: string | null) => categories.find((c) => c.id === id)?.name ?? "—";
 
   return (
     <div className="space-y-6">
@@ -69,7 +75,7 @@ function AdminProducts() {
           <Field icon={Tag} label="Subtitle" value={form.subtitle} onChange={(v) => setForm({ ...form, subtitle: v })} placeholder="Sales Navigator" />
 
           <div className="md:col-span-2">
-            <label className="text-[11px] font-semibold text-gray-700 mb-1.5 block flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Description</label>
+            <label className="text-[11px] font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Description</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -82,7 +88,7 @@ function AdminProducts() {
           <div>
             <label className="text-[11px] font-semibold text-gray-700 mb-1.5 block">Category</label>
             <select
-              value={form.categoryId}
+              value={form.categoryId || categories[0]?.id || ""}
               onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
               className="w-full h-11 px-3 rounded-xl bg-white/80 border border-gray-200 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100 outline-none text-sm transition"
             >
@@ -104,14 +110,17 @@ function AdminProducts() {
 
           <div className="md:col-span-2 flex justify-end gap-2">
             <button type="button" onClick={() => { setShowForm(false); reset(); }} className="h-10 px-5 rounded-full text-xs font-semibold bg-white/80 border border-gray-200 hover:bg-gray-50 transition">Cancel</button>
-            <button className="h-10 px-5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow hover:opacity-95 transition">Save product</button>
+            <button disabled={add.isPending} className="h-10 px-5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow hover:opacity-95 transition disabled:opacity-60">
+              {add.isPending ? "Saving…" : "Save product"}
+            </button>
           </div>
         </form>
       )}
 
-      {/* List */}
       <div className="rounded-3xl backdrop-blur-2xl bg-white/70 border border-white/70 shadow-sm overflow-hidden">
-        {items.length === 0 ? (
+        {loading ? (
+          <p className="p-10 text-center text-sm text-gray-500">Loading…</p>
+        ) : items.length === 0 ? (
           <div className="p-10 text-center">
             <div className="mx-auto w-14 h-14 rounded-2xl grid place-items-center bg-gradient-to-br from-violet-100 to-fuchsia-100 mb-3">
               <PackagePlus className="w-6 h-6 text-fuchsia-600" />
@@ -139,7 +148,7 @@ function AdminProducts() {
                       <span className="font-extrabold">₹{p.price.toLocaleString("en-IN")}</span>
                       {p.oldPrice && <span className="text-xs line-through text-gray-400">₹{p.oldPrice.toLocaleString("en-IN")}</span>}
                     </div>
-                    <button onClick={() => remove(p.id)} className="w-8 h-8 rounded-full grid place-items-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition" aria-label="Delete">
+                    <button onClick={() => remove.mutate(p.id)} className="w-8 h-8 rounded-full grid place-items-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition" aria-label="Delete">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -156,7 +165,7 @@ function AdminProducts() {
 function Field({ icon: Icon, label, value, onChange, placeholder, type = "text" }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold text-gray-700 mb-1.5 block flex items-center gap-1.5"><Icon className="w-3.5 h-3.5" /> {label}</label>
+      <label className="text-[11px] font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5"><Icon className="w-3.5 h-3.5" /> {label}</label>
       <input
         type={type}
         value={value}

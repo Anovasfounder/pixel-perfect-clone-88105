@@ -11,8 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { BundleProvider } from "../components/site/BundleContext";
-import { BundleDrawer } from "../components/site/BundleDrawer";
+import { WhatsAppButton } from "../components/site/WhatsAppButton";
 
 function NotFoundComponent() {
   return (
@@ -79,25 +78,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Converts Figma designs into responsive, pixel-perfect code with placeholder images and glassmorphism effects." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Converts Figma designs into responsive, pixel-perfect code with placeholder images and glassmorphism effects." },
+      { title: "BundleByte — Digital Keys & Software Marketplace" },
+      { name: "description", content: "Trending apps, games and software keys with instant delivery at unbeatable prices." },
+      { property: "og:title", content: "BundleByte — Digital Keys & Software Marketplace" },
+      { property: "og:description", content: "Trending apps, games and software keys with instant delivery at unbeatable prices." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "Converts Figma designs into responsive, pixel-perfect code with placeholder images and glassmorphism effects." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1694aff1-99f0-4fb8-a0d7-ac365285ad39/id-preview-875b1165--2ce1fe08-5156-44d0-a93d-0b5054bf8e93.lovable.app-1781424630243.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1694aff1-99f0-4fb8-a0d7-ac365285ad39/id-preview-875b1165--2ce1fe08-5156-44d0-a93d-0b5054bf8e93.lovable.app-1781424630243.png" },
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -121,13 +109,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
   return (
     <QueryClientProvider client={queryClient}>
-      <BundleProvider>
-        <Outlet />
-        <BundleDrawer />
-      </BundleProvider>
+      <Outlet />
+      <WhatsAppButton />
     </QueryClientProvider>
   );
 }
