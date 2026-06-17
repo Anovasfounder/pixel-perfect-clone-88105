@@ -5,7 +5,8 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
-import { ProductCard, defaultProduct } from "@/components/site/ProductCard";
+import { ProductCard, defaultProduct, type ProductCardData } from "@/components/site/ProductCard";
+import { useProducts } from "@/lib/db";
 
 export const Route = createFileRoute("/")({
   head: () => ({
