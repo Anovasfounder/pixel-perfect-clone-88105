@@ -90,10 +90,10 @@ function Index() {
             </h1>
           </Reveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 max-w-6xl mx-auto">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Reveal key={i} delay={i * 80}>
+            {products.slice(0, 4).map((p, i) => (
+              <Reveal key={p.id} delay={i * 80}>
                 <div className="rounded-3xl p-3 backdrop-blur-2xl bg-white/60 border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
-                  <ProductCard product={{ ...defaultProduct, id: `${defaultProduct.id}-cat-${i}` }} />
+                  <ProductCard product={p} />
                 </div>
               </Reveal>
             ))}
