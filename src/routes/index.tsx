@@ -133,12 +133,12 @@ function Index() {
         <div className="mt-10 max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-4 md:auto-rows-fr">
           <Reveal className="md:col-span-2 md:row-span-2">
             <div className="h-full rounded-3xl p-4 backdrop-blur-2xl bg-gradient-to-br from-violet-100/80 via-pink-100/70 to-blue-100/80 border border-white/60 shadow-[0_12px_40px_-10px_rgba(168,85,247,0.35)]">
-              <ProductCard product={{ ...defaultProduct, id: `${defaultProduct.id}-bs-hero` }} />
+              <ProductCard product={products[0] ?? defaultProduct} />
             </div>
           </Reveal>
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Reveal key={i} delay={i * 80}>
-              <ProductCard product={{ ...defaultProduct, id: `${defaultProduct.id}-bs-${i}` }} />
+          {products.slice(1, 4).map((p, i) => (
+            <Reveal key={p.id + "-bs"} delay={i * 80}>
+              <ProductCard product={p} />
             </Reveal>
           ))}
         </div>
