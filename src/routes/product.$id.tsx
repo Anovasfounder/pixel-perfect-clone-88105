@@ -4,8 +4,8 @@ import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ProductCard, defaultProduct } from "@/components/site/ProductCard";
-import { ShoppingCart, ShieldCheck, Zap, BadgeCheck, Star, ChevronRight, Plus } from "lucide-react";
-import { useBundle } from "@/components/site/BundleContext";
+import { ShoppingCart, ShieldCheck, Zap, BadgeCheck, Star, ChevronRight } from "lucide-react";
+import { useProduct, useProducts } from "@/lib/db";
 
 const PRODUCT_IMG = "https://i.ibb.co/F1zdP7n/Rectangle-207.png";
 
@@ -21,9 +21,25 @@ export const Route = createFileRoute("/product/$id")({
 
 function ProductPage() {
   const { id } = Route.useParams();
-  const title = id.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
-  const { add: addToBundle, open: openBundle } = useBundle();
   const navigate = useNavigate();
+  const { data: product } = useProduct(id);
+  const { items: allProducts } = useProducts();
+
+  const title = product?.title ?? id.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+  const img = product?.image || PRODUCT_IMG;
+  const price = product?.price ?? 2499;
+  const oldPrice = product?.oldPrice ?? 3299;
+  const paymentLink = product?.paymentLink || "https://razorpay.com/payment-link/";
+  const description = product?.description ||
+    `Unlock the full power of ${title} with an officially licensed digital key delivered straight to your inbox.`;
+
+  const related = allProducts.filter((p) => p.id !== id).slice(0, 4);
+
+  const goCheckout = () =>
+    navigate({
+      to: "/checkout",
+      search: { productId: id, title, price, image: img, paymentLink },
+    });
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
@@ -38,25 +54,16 @@ function ProductPage() {
 
       <main className="max-w-6xl mx-auto px-6 md:px-12 py-10">
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
-          {/* Poster */}
           <Reveal>
             <div className="relative rounded-3xl overflow-hidden backdrop-blur-xl bg-gradient-to-br from-violet-100/70 via-pink-100/60 to-blue-100/70 border border-white/60 shadow-[0_20px_60px_-20px_rgba(168,85,247,0.45)] p-4">
               <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-fuchsia-400/30 blur-3xl" />
               <div className="absolute -bottom-16 -left-12 w-56 h-56 rounded-full bg-violet-400/30 blur-3xl" />
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-white">
-                <img src={PRODUCT_IMG} alt={title} className="w-full h-full object-cover" />
-              </div>
-              <div className="relative mt-4 grid grid-cols-4 gap-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="aspect-square rounded-xl overflow-hidden bg-white/80 backdrop-blur border border-white/60">
-                    <img src={PRODUCT_IMG} alt="" className="w-full h-full object-cover" />
-                  </div>
-                ))}
+                <img src={img} alt={title} className="w-full h-full object-cover" />
               </div>
             </div>
           </Reveal>
 
-          {/* Details */}
           <Reveal delay={120}>
             <div className="flex flex-col gap-5">
               <div className="inline-flex w-fit items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-fuchsia-700 bg-fuchsia-50 border border-fuchsia-100 px-3 py-1 rounded-full">
@@ -69,39 +76,23 @@ function ProductPage() {
                 </div>
                 <span className="text-gray-600">4.9 · 2,340 reviews</span>
               </div>
-              <p className="text-[15px] leading-relaxed text-gray-700">
-                Unlock the full power of {title} with an officially licensed digital key delivered straight
-                to your inbox. Enjoy premium features, priority support and lifetime activation — all at a
-                fraction of the retail price.
-              </p>
+              <p className="text-[15px] leading-relaxed text-gray-700">{description}</p>
 
-              {/* Pricing card */}
               <div className="rounded-3xl backdrop-blur-2xl bg-white/70 border border-white/70 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] p-5">
                 <div className="flex items-end gap-3">
-                  <span className="text-3xl font-extrabold text-gray-900">₹2,499</span>
-                  <span className="text-lg line-through text-gray-400 mb-1">₹3,299</span>
-                  <span className="ml-auto text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">SAVE 24%</span>
+                  <span className="text-3xl font-extrabold text-gray-900">₹{price.toLocaleString("en-IN")}</span>
+                  {oldPrice ? (
+                    <span className="text-lg line-through text-gray-400 mb-1">₹{oldPrice.toLocaleString("en-IN")}</span>
+                  ) : null}
                 </div>
                 <button
-                  onClick={() =>
-                    navigate({
-                      to: "/checkout",
-                      search: { productId: id, title, price: 2499, image: PRODUCT_IMG, paymentLink: "https://razorpay.com/payment-link/" },
-                    })
-                  }
+                  onClick={goCheckout}
                   className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 shadow-lg hover:shadow-xl hover:opacity-95 transition"
                 >
                   <ShoppingCart className="w-4 h-4" /> BUY NOW
                 </button>
-                <button
-                  onClick={() => addToBundle({ id, title, subtitle: "Digital key", price: 2499, image: PRODUCT_IMG })}
-                  className="mt-2 w-full inline-flex items-center justify-center gap-2 h-11 rounded-full text-sm font-semibold text-gray-900 bg-white/70 border border-gray-200 hover:bg-gray-50 transition"
-                >
-                  <Plus className="w-4 h-4" /> Add to bundle
-                </button>
               </div>
 
-              {/* Bento perks */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {[
                   { i: Zap, t: "Instant delivery", d: "Key in 30 seconds" },
@@ -119,13 +110,22 @@ function ProductPage() {
           </Reveal>
         </div>
 
-        {/* Related */}
         <Reveal>
           <section className="mt-16">
             <h2 className="text-2xl font-bold mb-6">You might also like</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <ProductCard key={i} product={{ ...defaultProduct, id: `${defaultProduct.id}-${i}` }} />
+              {(related.length ? related : Array.from({ length: 4 }).map((_, i) => ({ ...defaultProduct, id: `${defaultProduct.id}-${i}` }))).map((p: any) => (
+                <ProductCard
+                  key={p.id}
+                  product={{
+                    id: p.id,
+                    title: p.subtitle || p.title,
+                    subtitle: p.title || p.subtitle,
+                    oldPrice: p.oldPrice ? `₹${Number(p.oldPrice).toLocaleString("en-IN")}` : "₹3,299",
+                    price: p.price ? `₹${Number(p.price).toLocaleString("en-IN")}` : "₹2,499",
+                    image: p.image,
+                  }}
+                />
               ))}
             </div>
           </section>

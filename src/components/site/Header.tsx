@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Search, Menu, X, TrendingUp, Gamepad2, AppWindow, Cpu, ShoppingBag } from "lucide-react";
+import { Search, Menu, X, TrendingUp, Gamepad2, AppWindow, Cpu } from "lucide-react";
 import { useState } from "react";
-import { useBundle } from "./BundleContext";
 
 const LOGO = "https://i.ibb.co/DDkjtbgG/Whats-App-Image-2026-06-12-at-15-44-39.jpg";
 
@@ -14,7 +13,6 @@ const NAV = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  const { count, open: openBundle } = useBundle();
   return (
     <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-white/40 supports-[backdrop-filter]:bg-white/60">
       <div className="px-4 sm:px-6 md:px-10">
@@ -36,18 +34,6 @@ export function Header() {
               />
             </div>
           </div>
-          <button
-            onClick={openBundle}
-            aria-label="Open bundle"
-            className="relative shrink-0 w-10 h-10 grid place-items-center rounded-full border border-gray-200 bg-white/80 backdrop-blur-md hover:bg-fuchsia-50 transition"
-          >
-            <ShoppingBag className="w-4 h-4" />
-            {count > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white text-[10px] font-bold grid place-items-center shadow">
-                {count}
-              </span>
-            )}
-          </button>
           <button
             onClick={() => setOpen((o) => !o)}
             aria-label="Menu"
