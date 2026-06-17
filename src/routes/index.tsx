@@ -50,6 +50,18 @@ function FaqItem({ q, a, defaultOpen = false }: { q: string; a?: string; default
 }
 
 function Index() {
+  const { items: dbProducts } = useProducts();
+  const products: ProductCardData[] = dbProducts.length
+    ? dbProducts.map((p) => ({
+        id: p.id,
+        title: p.subtitle || p.title,
+        subtitle: p.title,
+        oldPrice: p.oldPrice ? `₹${p.oldPrice.toLocaleString("en-IN")}` : "",
+        price: `₹${p.price.toLocaleString("en-IN")}`,
+        image: p.image || undefined,
+      }))
+    : Array.from({ length: 8 }).map((_, i) => ({ ...defaultProduct, id: `${defaultProduct.id}-ph-${i}` }));
+
   const brands = ["Xbox", "PlayStation", "Unlock", "AI", "Switch", "Joy-Con"];
   const budgets = ["₹499", "₹999", "₹1,999", "₹3,999"];
   const faqs = [
