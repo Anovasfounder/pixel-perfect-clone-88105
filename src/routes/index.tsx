@@ -105,9 +105,9 @@ function Index() {
       <section className="px-4 sm:px-6 md:px-12 py-10 sm:py-14">
         <Reveal><SectionTitle icon={Tag}>Random keys</SectionTitle></Reveal>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-6xl mx-auto mt-8 sm:mt-10">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Reveal key={i} delay={i * 60}>
-              <ProductCard product={{ ...defaultProduct, id: `${defaultProduct.id}-r-${i}` }} />
+          {products.slice(0, 5).map((p, i) => (
+            <Reveal key={p.id + "-r"} delay={i * 60}>
+              <ProductCard product={p} />
             </Reveal>
           ))}
         </div>
