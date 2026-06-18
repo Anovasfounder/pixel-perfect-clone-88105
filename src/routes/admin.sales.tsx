@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { useSales } from "@/lib/adminStore";
+import { useSales } from "@/lib/db";
 import { IndianRupee, ShoppingCart, Users } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/admin/sales")({
 });
 
 function AdminSales() {
-  const { items } = useSales();
+  const { items, loading } = useSales();
 
   const total = items.reduce((s, x) => s + x.amount, 0);
   const customers = new Set(items.map((i) => i.customerEmail)).size;
@@ -22,7 +22,7 @@ function AdminSales() {
       d.setDate(d.getDate() - i);
       const key = d.toDateString();
       const label = d.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
-      days.push({ day: label, amount: items.filter((s) => new Date(s.date).toDateString() === key).reduce((a, b) => a + b.amount, 0) });
+      days.push({ day: label, amount: items.filter((s) => new Date(s.createdAt).toDateString() === key).reduce((a, b) => a + b.amount, 0) });
     }
     return days;
   }, [items]);
@@ -66,8 +66,10 @@ function AdminSales() {
       </div>
 
       <div className="rounded-3xl backdrop-blur-2xl bg-white/70 border border-white/70 shadow-sm overflow-hidden">
-        {items.length === 0 ? (
-          <div className="p-12 text-center text-sm text-gray-500">No sales yet — orders will appear here.</div>
+        {loading ? (
+          <div className="p-12 text-center text-sm text-gray-500">Loading…</div>
+        ) : items.length === 0 ? (
+          <div className="p-12 text-center text-sm text-gray-500">No sales yet — orders will appear here in real time.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -86,7 +88,7 @@ function AdminSales() {
                     <td className="px-5 py-3 font-semibold">{s.customerName}</td>
                     <td className="px-5 py-3 text-gray-600">{s.customerEmail}</td>
                     <td className="px-5 py-3 text-gray-600">{s.productTitle}</td>
-                    <td className="px-5 py-3 text-gray-600">{new Date(s.date).toLocaleDateString("en-IN")}</td>
+                    <td className="px-5 py-3 text-gray-600">{new Date(s.createdAt).toLocaleDateString("en-IN")}</td>
                     <td className="px-5 py-3 text-right font-bold">₹{s.amount.toLocaleString("en-IN")}</td>
                   </tr>
                 ))}

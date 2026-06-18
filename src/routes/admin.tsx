@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useSupabaseAuth } from "@/lib/db";
-import { LayoutDashboard, PackagePlus, FolderTree, Mail, BarChart3, LogOut, Menu, X, Sparkles, ShieldCheck } from "lucide-react";
+import { useSupabaseAuth, ADMIN_EMAIL } from "@/lib/db";
+import { LayoutDashboard, PackagePlus, FolderTree, Mail, BarChart3, LogOut, Menu, X, Sparkles, ShieldCheck, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — BundleByte" }] }),
@@ -17,11 +17,10 @@ const nav: Array<{ to: "/admin" | "/admin/products" | "/admin/categories" | "/ad
 ];
 
 function AdminLayout() {
-  const { isAuthed, isAdmin, ready, signIn, signUp, signOut, user } = useSupabaseAuth();
+  const { isAuthed, isAdmin, ready, signIn, signOut, user } = useSupabaseAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [form, setForm] = useState({ email: "", password: "" });
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -45,10 +44,9 @@ function AdminLayout() {
             setBusy(true);
             setErr("");
             try {
-              if (mode === "signin") await signIn(form.email, form.password);
-              else await signUp(form.email, form.password);
+              await signIn(form.email, form.password);
             } catch (e: any) {
-              setErr(e?.message || "Something went wrong");
+              setErr(e?.message || "Invalid credentials");
             } finally {
               setBusy(false);
             }
@@ -61,7 +59,7 @@ function AdminLayout() {
             </div>
             <div>
               <p className="font-extrabold tracking-tight">BundleByte Admin</p>
-              <p className="text-[11px] text-gray-500">{mode === "signin" ? "Sign in to continue" : "Create your admin account"}</p>
+              <p className="text-[11px] text-gray-500">Sign in to continue</p>
             </div>
           </div>
 
@@ -73,7 +71,7 @@ function AdminLayout() {
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="admin@bundlebyte.com"
+                placeholder={ADMIN_EMAIL}
                 className="mt-1 w-full h-11 px-3 rounded-xl bg-white/80 border border-gray-200 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100 outline-none text-sm transition"
               />
             </div>
@@ -82,7 +80,6 @@ function AdminLayout() {
               <input
                 type="password"
                 required
-                minLength={6}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 placeholder="••••••••"
@@ -97,28 +94,11 @@ function AdminLayout() {
             disabled={busy}
             className="w-full h-11 rounded-full text-sm font-bold text-white bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 shadow-lg hover:opacity-95 transition disabled:opacity-60"
           >
-            {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+            {busy ? "Please wait…" : "Sign in"}
           </button>
 
-          <p className="text-[11px] text-center text-gray-500">
-            {mode === "signin" ? (
-              <>
-                No admin yet?{" "}
-                <button type="button" onClick={() => { setMode("signup"); setErr(""); }} className="font-semibold text-fuchsia-600 hover:underline">
-                  Create the first admin account
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <button type="button" onClick={() => { setMode("signin"); setErr(""); }} className="font-semibold text-fuchsia-600 hover:underline">
-                  Sign in
-                </button>
-              </>
-            )}
-          </p>
-          <p className="text-[10px] text-center text-gray-400">
-            The first account to sign up automatically becomes admin.
+          <p className="text-[10px] text-center text-gray-400 inline-flex items-center justify-center gap-1 w-full">
+            <Lock className="w-3 h-3" /> Restricted to authorised admin only.
           </p>
         </form>
       </div>

@@ -3,7 +3,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
-import { ProductCard, defaultProduct } from "@/components/site/ProductCard";
+import { ProductCard } from "@/components/site/ProductCard";
 import { ShoppingCart, ShieldCheck, Zap, BadgeCheck, Star, ChevronRight } from "lucide-react";
 import { useProduct, useProducts } from "@/lib/db";
 
@@ -33,7 +33,9 @@ function ProductPage() {
   const description = product?.description ||
     `Unlock the full power of ${title} with an officially licensed digital key delivered straight to your inbox.`;
 
-  const related = allProducts.filter((p) => p.id !== id).slice(0, 4);
+  const related = product?.categoryId
+    ? allProducts.filter((p) => p.id !== id && p.categoryId === product.categoryId).slice(0, 4)
+    : [];
 
   const goCheckout = () =>
     navigate({
@@ -110,26 +112,28 @@ function ProductPage() {
           </Reveal>
         </div>
 
-        <Reveal>
-          <section className="mt-16">
-            <h2 className="text-2xl font-bold mb-6">You might also like</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-              {(related.length ? related : Array.from({ length: 4 }).map((_, i) => ({ ...defaultProduct, id: `${defaultProduct.id}-${i}` }))).map((p: any) => (
-                <ProductCard
-                  key={p.id}
-                  product={{
-                    id: p.id,
-                    title: p.subtitle || p.title,
-                    subtitle: p.title || p.subtitle,
-                    oldPrice: p.oldPrice ? `₹${Number(p.oldPrice).toLocaleString("en-IN")}` : "₹3,299",
-                    price: p.price ? `₹${Number(p.price).toLocaleString("en-IN")}` : "₹2,499",
-                    image: p.image,
-                  }}
-                />
-              ))}
-            </div>
-          </section>
-        </Reveal>
+        {related.length > 0 && (
+          <Reveal>
+            <section className="mt-16">
+              <h2 className="text-2xl font-bold mb-6">You might also like</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+                {related.map((p) => (
+                  <ProductCard
+                    key={p.id}
+                    product={{
+                      id: p.id,
+                      title: p.subtitle || p.title,
+                      subtitle: p.title || p.subtitle,
+                      oldPrice: p.oldPrice ? `₹${Number(p.oldPrice).toLocaleString("en-IN")}` : "",
+                      price: `₹${Number(p.price).toLocaleString("en-IN")}`,
+                      image: p.image,
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+          </Reveal>
+        )}
       </main>
 
       <Footer />

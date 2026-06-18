@@ -5,6 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 // Cast supabase to any for tables not yet in generated types
 const sb = supabase as any;
 
+// ============== Fixed admin credentials ==============
+export const ADMIN_EMAIL = "bundlebyte@gmail.com";
+export const ADMIN_PASSWORD = "7992193730";
+
 // ============== Types ==============
 export type Category = {
   id: string;
@@ -23,6 +27,17 @@ export type Product = {
   oldPrice: number | null;
   image: string;
   paymentLink: string;
+  createdAt: string;
+};
+
+export type NewsletterRow = { id: string; email: string; createdAt: string };
+export type SaleRow = {
+  id: string;
+  productId: string | null;
+  productTitle: string;
+  customerName: string;
+  customerEmail: string;
+  amount: number;
   createdAt: string;
 };
 
@@ -115,7 +130,14 @@ export function useProducts() {
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
   });
-  return { items: q.data ?? [], loading: q.isLoading, error: q.error as Error | null, add, remove };
+  return {
+    items: q.data ?? [],
+    loading: q.isLoading,
+    loaded: q.isFetched && !q.isLoading,
+    error: q.error as Error | null,
+    add,
+    remove,
+  };
 }
 
 export function useProduct(id: string | undefined) {
@@ -130,7 +152,76 @@ export function useProduct(id: string | undefined) {
   });
 }
 
-// ============== Auth (Supabase) ==============
+// ============== Newsletter ==============
+export function useNewsletter() {
+  const qc = useQueryClient();
+  const q = useQuery<NewsletterRow[]>({
+    queryKey: ["newsletter"],
+    queryFn: async () => {
+      const { data, error } = await sb
+        .from("newsletter_subscribers")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({ id: r.id, email: r.email, createdAt: r.created_at }));
+    },
+  });
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await sb.from("newsletter_subscribers").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["newsletter"] }),
+  });
+  return { items: q.data ?? [], loading: q.isLoading, remove };
+}
+
+export async function subscribeEmail(email: string) {
+  const { error } = await sb.from("newsletter_subscribers").insert({ email });
+  // Ignore unique violation so users get a friendly success even if they re-subscribe
+  if (error && (error.code === "23505" || /duplicate/i.test(error.message ?? ""))) return;
+  if (error) throw error;
+}
+
+// ============== Sales ==============
+export function useSales() {
+  const q = useQuery<SaleRow[]>({
+    queryKey: ["sales"],
+    queryFn: async () => {
+      const { data, error } = await sb.from("sales").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({
+        id: r.id,
+        productId: r.product_id,
+        productTitle: r.product_title,
+        customerName: r.customer_name,
+        customerEmail: r.customer_email,
+        amount: Number(r.amount ?? 0),
+        createdAt: r.created_at,
+      }));
+    },
+  });
+  return { items: q.data ?? [], loading: q.isLoading };
+}
+
+export async function recordSale(input: {
+  productId: string | null;
+  productTitle: string;
+  customerName: string;
+  customerEmail: string;
+  amount: number;
+}) {
+  const { error } = await sb.from("sales").insert({
+    product_id: input.productId,
+    product_title: input.productTitle,
+    customer_name: input.customerName,
+    customer_email: input.customerEmail,
+    amount: input.amount,
+  });
+  if (error) throw error;
+}
+
+// ============== Auth (Supabase) — fixed single admin account ==============
 export function useSupabaseAuth() {
   const [session, setSession] = useState<any>(null);
   const [ready, setReady] = useState(false);
@@ -169,18 +260,28 @@ export function useSupabaseAuth() {
     };
   }, [session]);
 
+  // Sign in with the fixed admin email/password. On first ever attempt the
+  // account doesn't exist yet — auto-bootstrap it. The DB trigger grants
+  // admin role to the first signup.
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-  }, []);
-
-  const signUp = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: typeof window !== "undefined" ? window.location.origin + "/admin" : undefined },
-    });
-    if (error) throw error;
+    if (email.trim().toLowerCase() !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      throw new Error("Invalid credentials");
+    }
+    const { error } = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
+    if (!error) return;
+    const msg = (error.message ?? "").toLowerCase();
+    if (msg.includes("invalid") || msg.includes("not found") || msg.includes("credentials")) {
+      const { error: suErr } = await supabase.auth.signUp({
+        email: ADMIN_EMAIL,
+        password: ADMIN_PASSWORD,
+        options: { emailRedirectTo: typeof window !== "undefined" ? window.location.origin + "/admin" : undefined },
+      });
+      if (suErr) throw suErr;
+      const { error: siErr } = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
+      if (siErr) throw siErr;
+      return;
+    }
+    throw error;
   }, []);
 
   const signOut = useCallback(async () => {
@@ -194,7 +295,6 @@ export function useSupabaseAuth() {
     isAdmin,
     ready,
     signIn,
-    signUp,
     signOut,
   };
 }
