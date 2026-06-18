@@ -5,7 +5,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
-import { ProductCard, defaultProduct, type ProductCardData } from "@/components/site/ProductCard";
+import { ProductCard, type ProductCardData } from "@/components/site/ProductCard";
 import { useProducts } from "@/lib/db";
 
 export const Route = createFileRoute("/")({
@@ -50,17 +50,25 @@ function FaqItem({ q, a, defaultOpen = false }: { q: string; a?: string; default
 }
 
 function Index() {
-  const { items: dbProducts } = useProducts();
-  const products: ProductCardData[] = dbProducts.length
-    ? dbProducts.map((p) => ({
-        id: p.id,
-        title: p.subtitle || p.title,
-        subtitle: p.title,
-        oldPrice: p.oldPrice ? `₹${p.oldPrice.toLocaleString("en-IN")}` : "",
-        price: `₹${p.price.toLocaleString("en-IN")}`,
-        image: p.image || undefined,
-      }))
-    : Array.from({ length: 8 }).map((_, i) => ({ ...defaultProduct, id: `${defaultProduct.id}-ph-${i}` }));
+  const { items: dbProducts, loading } = useProducts();
+  const products: ProductCardData[] = dbProducts.map((p) => ({
+    id: p.id,
+    title: p.subtitle || p.title,
+    subtitle: p.title,
+    oldPrice: p.oldPrice ? `₹${p.oldPrice.toLocaleString("en-IN")}` : "",
+    price: `₹${p.price.toLocaleString("en-IN")}`,
+    image: p.image || undefined,
+  }));
+  const hasProducts = products.length > 0;
+
+  const SkeletonCard = () => (
+    <div className="rounded-2xl bg-white/60 border border-white/60 shadow-sm aspect-[4/5] animate-pulse" />
+  );
+  const EmptyState = ({ label }: { label: string }) => (
+    <div className="col-span-full text-center text-sm text-gray-500 py-10 rounded-3xl backdrop-blur-xl bg-white/60 border border-white/60">
+      {label}
+    </div>
+  );
 
   const brands = ["Xbox", "PlayStation", "Unlock", "AI", "Switch", "Joy-Con"];
   const budgets = ["₹499", "₹999", "₹1,999", "₹3,999"];
