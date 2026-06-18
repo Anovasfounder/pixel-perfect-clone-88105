@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Twitter, Youtube, Mail, Send, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
-import { addNewsletterEmail } from "@/lib/adminStore";
+import { subscribeEmail } from "@/lib/db";
 
 const LOGO = "https://i.ibb.co/DDkjtbgG/Whats-App-Image-2026-06-12-at-15-44-39.jpg";
 
@@ -9,14 +9,23 @@ export function Footer() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
 
-  const subscribe = (e: React.FormEvent) => {
+  const [busy, setBusy] = useState(false);
+
+  const subscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     const v = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return;
-    addNewsletterEmail(v);
-    setDone(true);
-    setEmail("");
-    setTimeout(() => setDone(false), 2800);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || busy) return;
+    setBusy(true);
+    try {
+      await subscribeEmail(v);
+      setDone(true);
+      setEmail("");
+      setTimeout(() => setDone(false), 2800);
+    } catch {
+      // fail silently for the user
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (

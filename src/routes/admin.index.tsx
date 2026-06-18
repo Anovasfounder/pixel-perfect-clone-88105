@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { useSales, useNewsletter } from "@/lib/adminStore";
-import { useProducts, useCategories } from "@/lib/db";
+import { useProducts, useCategories, useSales, useNewsletter } from "@/lib/db";
 import { Package, FolderTree, Mail, TrendingUp, IndianRupee, ShoppingCart, ArrowUpRight } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell, Legend } from "recharts";
 
@@ -28,7 +27,7 @@ function Dashboard() {
       d.setDate(d.getDate() - i);
       const key = d.toDateString();
       const label = d.toLocaleDateString("en-IN", { weekday: "short" });
-      const day = sales.filter((s) => new Date(s.date).toDateString() === key);
+      const day = sales.filter((s) => new Date(s.createdAt).toDateString() === key);
       days.push({ day: label, sales: day.reduce((a, b) => a + b.amount, 0), orders: day.length });
     }
     return days;

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useNewsletter } from "@/lib/adminStore";
+import { useNewsletter } from "@/lib/db";
 import { Mail, Trash2, Download } from "lucide-react";
 
 export const Route = createFileRoute("/admin/newsletter")({
@@ -7,10 +7,10 @@ export const Route = createFileRoute("/admin/newsletter")({
 });
 
 function AdminNewsletter() {
-  const { items, remove } = useNewsletter();
+  const { items, remove, loading } = useNewsletter();
 
   const exportCsv = () => {
-    const rows = ["email,date", ...items.map((i) => `${i.email},${new Date(i.date).toISOString()}`)];
+    const rows = ["email,date", ...items.map((i) => `${i.email},${new Date(i.createdAt).toISOString()}`)];
     const blob = new Blob([rows.join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -35,13 +35,15 @@ function AdminNewsletter() {
       </header>
 
       <div className="rounded-3xl backdrop-blur-2xl bg-white/70 border border-white/70 shadow-sm overflow-hidden">
-        {items.length === 0 ? (
+        {loading ? (
+          <div className="p-12 text-center text-sm text-gray-500">Loading…</div>
+        ) : items.length === 0 ? (
           <div className="p-12 text-center">
             <div className="mx-auto w-14 h-14 rounded-2xl grid place-items-center bg-gradient-to-br from-violet-100 to-fuchsia-100 mb-3">
               <Mail className="w-6 h-6 text-fuchsia-600" />
             </div>
             <p className="font-bold">No subscribers yet</p>
-            <p className="text-xs text-gray-500 mt-1">Emails captured on the site will appear here.</p>
+            <p className="text-xs text-gray-500 mt-1">Emails captured on the site will appear here in real time.</p>
           </div>
         ) : (
           <ul className="divide-y divide-gray-100">
@@ -52,9 +54,9 @@ function AdminNewsletter() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate">{s.email}</p>
-                  <p className="text-[11px] text-gray-500">{new Date(s.date).toLocaleString("en-IN")}</p>
+                  <p className="text-[11px] text-gray-500">{new Date(s.createdAt).toLocaleString("en-IN")}</p>
                 </div>
-                <button onClick={() => remove(s.id)} className="w-8 h-8 rounded-full grid place-items-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
+                <button onClick={() => remove.mutate(s.id)} className="w-8 h-8 rounded-full grid place-items-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </li>

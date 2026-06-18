@@ -6,7 +6,7 @@ import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ShieldCheck, ArrowRight, CheckCircle2, Mail, User as UserIcon, ExternalLink } from "lucide-react";
-import { addSale } from "@/lib/adminStore";
+import { recordSale } from "@/lib/db";
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -39,7 +39,7 @@ function CheckoutPage() {
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const [ready, setReady] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
@@ -52,13 +52,17 @@ function CheckoutPage() {
     }
     setErrors({});
     if (product) {
-      addSale({
-        productId: product.id,
-        productTitle: product.title,
-        customerName: form.name,
-        customerEmail: form.email,
-        amount: product.price,
-      });
+      try {
+        await recordSale({
+          productId: product.id,
+          productTitle: product.title,
+          customerName: form.name,
+          customerEmail: form.email,
+          amount: product.price,
+        });
+      } catch {
+        // still let the user proceed to payment even if logging fails
+      }
     }
     setReady(true);
   };
