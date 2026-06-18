@@ -134,6 +134,7 @@ function ProductPage() {
             </section>
           </Reveal>
         )}
+      </main>
 
       <Footer />
     </div>
