@@ -1,18 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { Search, Menu, X, TrendingUp, Gamepad2, AppWindow, Cpu } from "lucide-react";
+import { Search, Menu, X, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { useCategories } from "@/lib/db";
 
 const LOGO = "https://i.ibb.co/DDkjtbgG/Whats-App-Image-2026-06-12-at-15-44-39.jpg";
 
-const NAV = [
-  { label: "Trending", to: "/", icon: TrendingUp },
-  { label: "Apps", to: "/", icon: AppWindow },
-  { label: "Games", to: "/", icon: Gamepad2 },
-  { label: "Softwares", to: "/", icon: Cpu },
-];
-
 export function Header() {
   const [open, setOpen] = useState(false);
+  const { items: categories } = useCategories();
+  const NAV = categories.map((c) => ({ label: c.name, icon: c.icon || "✨" }));
   return (
     <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-white/40 supports-[backdrop-filter]:bg-white/60">
       <div className="px-4 sm:px-6 md:px-10">
