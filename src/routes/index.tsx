@@ -1,12 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus, Minus, Sparkles, Tag, Flame, Wallet, HelpCircle, Store } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ProductCard, type ProductCardData } from "@/components/site/ProductCard";
-import { useProducts } from "@/lib/db";
+import { useProducts, useBudgets } from "@/lib/db";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,15 +51,21 @@ function FaqItem({ q, a, defaultOpen = false }: { q: string; a?: string; default
 
 function Index() {
   const { items: dbProducts, loading } = useProducts();
-  const products: ProductCardData[] = dbProducts.map((p) => ({
+  const { items: budgets } = useBudgets();
+
+  const toCard = (p: typeof dbProducts[number]): ProductCardData => ({
     id: p.id,
     title: p.subtitle || p.title,
     subtitle: p.title,
     oldPrice: p.oldPrice ? `₹${p.oldPrice.toLocaleString("en-IN")}` : "",
     price: `₹${p.price.toLocaleString("en-IN")}`,
     image: p.image || undefined,
-  }));
+  });
+
+  const products = useMemo(() => dbProducts.filter((p) => !p.isKey).map(toCard), [dbProducts]);
+  const keyProducts = useMemo(() => dbProducts.filter((p) => p.isKey).map(toCard), [dbProducts]);
   const hasProducts = products.length > 0;
+  const hasKeys = keyProducts.length > 0;
 
   const SkeletonCard = () => (
     <div className="rounded-2xl bg-white/60 border border-white/60 shadow-sm aspect-[4/5] animate-pulse" />
@@ -71,7 +77,6 @@ function Index() {
   );
 
   const brands = ["Xbox", "PlayStation", "Unlock", "AI", "Switch", "Joy-Con"];
-  const budgets = ["₹499", "₹999", "₹1,999", "₹3,999"];
   const faqs = [
     "How long does a typical delivery take?",
     "What's your pricing structure?",
@@ -117,15 +122,15 @@ function Index() {
       <section className="px-4 sm:px-6 md:px-12 py-10 sm:py-14">
         <Reveal><SectionTitle icon={Tag}>Random keys</SectionTitle></Reveal>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-6xl mx-auto mt-8 sm:mt-10">
-          {loading && !hasProducts
+          {loading && !hasKeys
             ? Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
-            : hasProducts
-            ? products.slice(0, 5).map((p, i) => (
+            : hasKeys
+            ? keyProducts.slice(0, 10).map((p, i) => (
                 <Reveal key={p.id + "-r"} delay={i * 60}>
                   <ProductCard product={p} />
                 </Reveal>
               ))
-            : <EmptyState label="No products to show yet." />}
+            : <EmptyState label="No keys listed yet — add some from the admin panel." />}
         </div>
       </section>
 
@@ -172,17 +177,27 @@ function Index() {
       <section className="px-4 sm:px-6 md:px-12 py-14 border-t border-gray-100">
         <Reveal><SectionTitle icon={Wallet}>Budget</SectionTitle></Reveal>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-5xl mx-auto mt-10">
-          {budgets.map((b, i) => (
-            <Reveal key={b} delay={i * 60}>
-              <div className="rounded-2xl px-5 py-4 backdrop-blur-2xl bg-white/60 border border-white/60 shadow-[0_8px_24px_rgba(0,0,0,0.08)] flex items-center justify-between hover:-translate-y-0.5 transition">
-                <span className="text-sm font-semibold text-gray-800">
-                  UPTO :<br />
-                  <span className="text-base">{b}</span>
-                </span>
-                <img src={LABEL} alt="" className="w-12 h-10 object-cover rounded" />
-              </div>
-            </Reveal>
-          ))}
+          {budgets.length === 0 ? (
+            <EmptyState label="Budget tiers will appear once the admin adds them." />
+          ) : (
+            budgets.map((b, i) => (
+              <Reveal key={b.id} delay={i * 60}>
+                <Link
+                  to="/budget/$id"
+                  params={{ id: b.id }}
+                  className="block rounded-2xl px-5 py-4 backdrop-blur-2xl bg-white/60 border border-white/60 shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:shadow-lg transition"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-800">
+                      UPTO :<br />
+                      <span className="text-base">{b.label}</span>
+                    </span>
+                    <img src={LABEL} alt="" loading="lazy" decoding="async" className="w-12 h-10 object-cover rounded" />
+                  </div>
+                </Link>
+              </Reveal>
+            ))
+          )}
         </div>
       </section>
 

@@ -1,15 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useProducts, useCategories } from "@/lib/db";
-import { PackagePlus, Trash2, Image as ImageIcon, IndianRupee, Link2, Tag, FileText, X } from "lucide-react";
+import { KeyRound, Trash2, Image as ImageIcon, IndianRupee, Link2, Tag, FileText, X, Gamepad2, Globe } from "lucide-react";
 
-export const Route = createFileRoute("/admin/products")({
-  component: AdminProducts,
+export const Route = createFileRoute("/admin/keys")({
+  component: AdminKeys,
 });
 
-function AdminProducts() {
-  const { items: allItems, add, remove, loading } = useProducts();
-  const items = allItems.filter((p) => !p.isKey);
+function AdminKeys() {
+  const { items, add, remove, loading } = useProducts();
   const { items: categories } = useCategories();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -21,17 +20,21 @@ function AdminProducts() {
     oldPrice: "",
     image: "",
     paymentLink: "",
+    platform: "",
+    region: "Global",
   });
   const [err, setErr] = useState("");
 
+  const keys = items.filter((p) => p.isKey);
+
   const reset = () =>
-    setForm({ title: "", subtitle: "", description: "", categoryId: "", price: "", oldPrice: "", image: "", paymentLink: "" });
+    setForm({ title: "", subtitle: "", description: "", categoryId: "", price: "", oldPrice: "", image: "", paymentLink: "", platform: "", region: "Global" });
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const categoryId = form.categoryId || categories[0]?.id || "";
-    if (!form.title || !categoryId || !form.price || !form.image || !form.paymentLink) {
-      setErr("Fill in title, category, price, image and payment link.");
+    if (!form.title || !categoryId || !form.price || !form.image || !form.paymentLink || !form.platform) {
+      setErr("Fill in title, category, platform, price, image and payment link.");
       return;
     }
     try {
@@ -44,37 +47,40 @@ function AdminProducts() {
         oldPrice: form.oldPrice ? Number(form.oldPrice) : undefined,
         image: form.image.trim(),
         paymentLink: form.paymentLink.trim(),
-        isKey: false,
+        isKey: true,
+        platform: form.platform.trim(),
+        region: form.region.trim() || "Global",
       });
       setErr("");
       reset();
       setShowForm(false);
     } catch (e: any) {
-      setErr(e?.message || "Could not save product.");
+      setErr(e?.message || "Could not save key.");
     }
   };
-
-  const catName = (id: string | null) => categories.find((c) => c.id === id)?.name ?? "—";
 
   return (
     <div className="space-y-6">
       <header className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Products</h1>
-          <p className="text-sm text-gray-500">Manage your store catalogue</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Keys</h1>
+          <p className="text-sm text-gray-500">Manage game / software keys shown in the "Random keys" section</p>
         </div>
         <button
           onClick={() => setShowForm((s) => !s)}
           className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-xs font-bold shadow hover:opacity-95 transition"
         >
-          {showForm ? <><X className="w-3.5 h-3.5" /> Close</> : <><PackagePlus className="w-3.5 h-3.5" /> Add product</>}
+          {showForm ? <><X className="w-3.5 h-3.5" /> Close</> : <><KeyRound className="w-3.5 h-3.5" /> Add key</>}
         </button>
       </header>
 
       {showForm && (
         <form onSubmit={submit} className="rounded-3xl backdrop-blur-2xl bg-white/70 border border-white/70 shadow-sm p-6 grid md:grid-cols-2 gap-4">
-          <Field icon={Tag} label="Product title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} placeholder="LinkedIn Premium" />
-          <Field icon={Tag} label="Subtitle" value={form.subtitle} onChange={(v) => setForm({ ...form, subtitle: v })} placeholder="Sales Navigator" />
+          <Field icon={Tag} label="Key title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} placeholder="Minecraft Java Edition" />
+          <Field icon={Tag} label="Subtitle" value={form.subtitle} onChange={(v) => setForm({ ...form, subtitle: v })} placeholder="Lifetime Key" />
+
+          <Field icon={Gamepad2} label="Platform" value={form.platform} onChange={(v) => setForm({ ...form, platform: v })} placeholder="PC / Xbox / PlayStation" />
+          <Field icon={Globe} label="Region" value={form.region} onChange={(v) => setForm({ ...form, region: v })} placeholder="Global / India / EU" />
 
           <div className="md:col-span-2">
             <label className="text-[11px] font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Description</label>
@@ -82,7 +88,7 @@ function AdminProducts() {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={3}
-              placeholder="Describe the product..."
+              placeholder="Activation details, what's included..."
               className="w-full px-3 py-2.5 rounded-xl bg-white/80 border border-gray-200 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100 outline-none text-sm transition"
             />
           </div>
@@ -101,8 +107,8 @@ function AdminProducts() {
 
           <Field icon={ImageIcon} label="Image URL" value={form.image} onChange={(v) => setForm({ ...form, image: v })} placeholder="https://..." />
 
-          <Field icon={IndianRupee} label="Price (₹)" value={form.price} onChange={(v) => setForm({ ...form, price: v })} placeholder="2499" type="number" />
-          <Field icon={IndianRupee} label="Old price (₹)" value={form.oldPrice} onChange={(v) => setForm({ ...form, oldPrice: v })} placeholder="3299 (optional)" type="number" />
+          <Field icon={IndianRupee} label="Price (₹)" value={form.price} onChange={(v) => setForm({ ...form, price: v })} placeholder="299" type="number" />
+          <Field icon={IndianRupee} label="Old price (₹)" value={form.oldPrice} onChange={(v) => setForm({ ...form, oldPrice: v })} placeholder="499 (optional)" type="number" />
 
           <div className="md:col-span-2">
             <Field icon={Link2} label="Payment gateway link" value={form.paymentLink} onChange={(v) => setForm({ ...form, paymentLink: v })} placeholder="https://rzp.io/l/xxxx" />
@@ -113,7 +119,7 @@ function AdminProducts() {
           <div className="md:col-span-2 flex justify-end gap-2">
             <button type="button" onClick={() => { setShowForm(false); reset(); }} className="h-10 px-5 rounded-full text-xs font-semibold bg-white/80 border border-gray-200 hover:bg-gray-50 transition">Cancel</button>
             <button disabled={add.isPending} className="h-10 px-5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow hover:opacity-95 transition disabled:opacity-60">
-              {add.isPending ? "Saving…" : "Save product"}
+              {add.isPending ? "Saving…" : "Save key"}
             </button>
           </div>
         </form>
@@ -122,35 +128,35 @@ function AdminProducts() {
       <div className="rounded-3xl backdrop-blur-2xl bg-white/70 border border-white/70 shadow-sm overflow-hidden">
         {loading ? (
           <p className="p-10 text-center text-sm text-gray-500">Loading…</p>
-        ) : items.length === 0 ? (
+        ) : keys.length === 0 ? (
           <div className="p-10 text-center">
             <div className="mx-auto w-14 h-14 rounded-2xl grid place-items-center bg-gradient-to-br from-violet-100 to-fuchsia-100 mb-3">
-              <PackagePlus className="w-6 h-6 text-fuchsia-600" />
+              <KeyRound className="w-6 h-6 text-fuchsia-600" />
             </div>
-            <p className="font-bold">No products yet</p>
-            <p className="text-xs text-gray-500 mt-1">Click "Add product" to create your first listing.</p>
+            <p className="font-bold">No keys yet</p>
+            <p className="text-xs text-gray-500 mt-1">Click "Add key" to list your first key.</p>
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4">
-            {items.map((p) => (
-              <div key={p.id} className="group rounded-2xl bg-white/80 border border-white/80 backdrop-blur-xl shadow-sm overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition">
+            {keys.map((p) => (
+              <div key={p.id} className="rounded-2xl bg-white/80 border border-white/80 backdrop-blur-xl shadow-sm overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition">
                 <div className="aspect-[4/3] bg-gray-100">
-                  <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
+                  <img src={p.image} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="p-3.5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-[13px] font-bold truncate">{p.title}</p>
-                      <p className="text-[11px] text-gray-500 truncate">{p.subtitle}</p>
+                      <p className="text-[11px] text-gray-500 truncate">{p.platform ?? ""} · {p.region ?? ""}</p>
                     </div>
-                    <span className="text-[10px] uppercase tracking-wider font-bold text-fuchsia-700 bg-fuchsia-50 border border-fuchsia-100 px-2 py-0.5 rounded-full shrink-0">{catName(p.categoryId)}</span>
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-fuchsia-700 bg-fuchsia-50 border border-fuchsia-100 px-2 py-0.5 rounded-full shrink-0">KEY</span>
                   </div>
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center gap-2">
                       <span className="font-extrabold">₹{p.price.toLocaleString("en-IN")}</span>
                       {p.oldPrice && <span className="text-xs line-through text-gray-400">₹{p.oldPrice.toLocaleString("en-IN")}</span>}
                     </div>
-                    <button onClick={() => remove.mutate(p.id)} className="w-8 h-8 rounded-full grid place-items-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition" aria-label="Delete">
+                    <button onClick={() => remove.mutate(p.id)} className="w-8 h-8 rounded-full grid place-items-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
