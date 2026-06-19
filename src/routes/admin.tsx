@@ -1,17 +1,19 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useSupabaseAuth, ADMIN_EMAIL } from "@/lib/db";
-import { LayoutDashboard, PackagePlus, FolderTree, Mail, BarChart3, LogOut, Menu, X, Sparkles, ShieldCheck, Lock } from "lucide-react";
+import { LayoutDashboard, PackagePlus, FolderTree, Mail, BarChart3, LogOut, Menu, X, Sparkles, ShieldCheck, Lock, KeyRound, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — BundleByte" }] }),
   component: AdminLayout,
 });
 
-const nav: Array<{ to: "/admin" | "/admin/products" | "/admin/categories" | "/admin/sales" | "/admin/newsletter"; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
+const nav: Array<{ to: "/admin" | "/admin/products" | "/admin/keys" | "/admin/categories" | "/admin/budgets" | "/admin/sales" | "/admin/newsletter"; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/products", label: "Products", icon: PackagePlus },
+  { to: "/admin/keys", label: "Keys", icon: KeyRound },
   { to: "/admin/categories", label: "Categories", icon: FolderTree },
+  { to: "/admin/budgets", label: "Budgets", icon: Wallet },
   { to: "/admin/sales", label: "Sales", icon: BarChart3 },
   { to: "/admin/newsletter", label: "Newsletter", icon: Mail },
 ];
