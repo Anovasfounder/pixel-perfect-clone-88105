@@ -122,15 +122,15 @@ function Index() {
       <section className="px-4 sm:px-6 md:px-12 py-10 sm:py-14">
         <Reveal><SectionTitle icon={Tag}>Random keys</SectionTitle></Reveal>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-6xl mx-auto mt-8 sm:mt-10">
-          {loading && !hasProducts
+          {loading && !hasKeys
             ? Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
-            : hasProducts
-            ? products.slice(0, 5).map((p, i) => (
+            : hasKeys
+            ? keyProducts.slice(0, 10).map((p, i) => (
                 <Reveal key={p.id + "-r"} delay={i * 60}>
                   <ProductCard product={p} />
                 </Reveal>
               ))
-            : <EmptyState label="No products to show yet." />}
+            : <EmptyState label="No keys listed yet — add some from the admin panel." />}
         </div>
       </section>
 
@@ -177,17 +177,27 @@ function Index() {
       <section className="px-4 sm:px-6 md:px-12 py-14 border-t border-gray-100">
         <Reveal><SectionTitle icon={Wallet}>Budget</SectionTitle></Reveal>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-5xl mx-auto mt-10">
-          {budgets.map((b, i) => (
-            <Reveal key={b} delay={i * 60}>
-              <div className="rounded-2xl px-5 py-4 backdrop-blur-2xl bg-white/60 border border-white/60 shadow-[0_8px_24px_rgba(0,0,0,0.08)] flex items-center justify-between hover:-translate-y-0.5 transition">
-                <span className="text-sm font-semibold text-gray-800">
-                  UPTO :<br />
-                  <span className="text-base">{b}</span>
-                </span>
-                <img src={LABEL} alt="" className="w-12 h-10 object-cover rounded" />
-              </div>
-            </Reveal>
-          ))}
+          {budgets.length === 0 ? (
+            <EmptyState label="Budget tiers will appear once the admin adds them." />
+          ) : (
+            budgets.map((b, i) => (
+              <Reveal key={b.id} delay={i * 60}>
+                <Link
+                  to="/budget/$id"
+                  params={{ id: b.id }}
+                  className="block rounded-2xl px-5 py-4 backdrop-blur-2xl bg-white/60 border border-white/60 shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:shadow-lg transition"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-800">
+                      UPTO :<br />
+                      <span className="text-base">{b.label}</span>
+                    </span>
+                    <img src={LABEL} alt="" loading="lazy" decoding="async" className="w-12 h-10 object-cover rounded" />
+                  </div>
+                </Link>
+              </Reveal>
+            ))
+          )}
         </div>
       </section>
 
