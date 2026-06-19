@@ -16,10 +16,13 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as BudgetIdRouteImport } from './routes/budget.$id'
 import { Route as AdminSalesRouteImport } from './routes/admin.sales'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminNewsletterRouteImport } from './routes/admin.newsletter'
+import { Route as AdminKeysRouteImport } from './routes/admin.keys'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminBudgetsRouteImport } from './routes/admin.budgets'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -56,6 +59,11 @@ const ProductIdRoute = ProductIdRouteImport.update({
   path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BudgetIdRoute = BudgetIdRouteImport.update({
+  id: '/budget/$id',
+  path: '/budget/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSalesRoute = AdminSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
@@ -71,9 +79,19 @@ const AdminNewsletterRoute = AdminNewsletterRouteImport.update({
   path: '/newsletter',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminKeysRoute = AdminKeysRouteImport.update({
+  id: '/keys',
+  path: '/keys',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBudgetsRoute = AdminBudgetsRouteImport.update({
+  id: '/budgets',
+  path: '/budgets',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -83,10 +101,13 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/keys': typeof AdminKeysRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sales': typeof AdminSalesRoute
+  '/budget/$id': typeof BudgetIdRoute
   '/product/$id': typeof ProductIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -95,10 +116,13 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/keys': typeof AdminKeysRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sales': typeof AdminSalesRoute
+  '/budget/$id': typeof BudgetIdRoute
   '/product/$id': typeof ProductIdRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -109,10 +133,13 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/keys': typeof AdminKeysRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sales': typeof AdminSalesRoute
+  '/budget/$id': typeof BudgetIdRoute
   '/product/$id': typeof ProductIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -124,10 +151,13 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/privacy'
     | '/terms'
+    | '/admin/budgets'
     | '/admin/categories'
+    | '/admin/keys'
     | '/admin/newsletter'
     | '/admin/products'
     | '/admin/sales'
+    | '/budget/$id'
     | '/product/$id'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -136,10 +166,13 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/privacy'
     | '/terms'
+    | '/admin/budgets'
     | '/admin/categories'
+    | '/admin/keys'
     | '/admin/newsletter'
     | '/admin/products'
     | '/admin/sales'
+    | '/budget/$id'
     | '/product/$id'
     | '/admin'
   id:
@@ -149,10 +182,13 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/privacy'
     | '/terms'
+    | '/admin/budgets'
     | '/admin/categories'
+    | '/admin/keys'
     | '/admin/newsletter'
     | '/admin/products'
     | '/admin/sales'
+    | '/budget/$id'
     | '/product/$id'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -163,6 +199,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  BudgetIdRoute: typeof BudgetIdRoute
   ProductIdRoute: typeof ProductIdRoute
 }
 
@@ -217,6 +254,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/budget/$id': {
+      id: '/budget/$id'
+      path: '/budget/$id'
+      fullPath: '/budget/$id'
+      preLoaderRoute: typeof BudgetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/sales': {
       id: '/admin/sales'
       path: '/sales'
@@ -238,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNewsletterRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/keys': {
+      id: '/admin/keys'
+      path: '/keys'
+      fullPath: '/admin/keys'
+      preLoaderRoute: typeof AdminKeysRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/categories': {
       id: '/admin/categories'
       path: '/categories'
@@ -245,11 +296,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCategoriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/budgets': {
+      id: '/admin/budgets'
+      path: '/budgets'
+      fullPath: '/admin/budgets'
+      preLoaderRoute: typeof AdminBudgetsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminBudgetsRoute: typeof AdminBudgetsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminKeysRoute: typeof AdminKeysRoute
   AdminNewsletterRoute: typeof AdminNewsletterRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminSalesRoute: typeof AdminSalesRoute
@@ -257,7 +317,9 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminBudgetsRoute: AdminBudgetsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminKeysRoute: AdminKeysRoute,
   AdminNewsletterRoute: AdminNewsletterRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminSalesRoute: AdminSalesRoute,
@@ -272,6 +334,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  BudgetIdRoute: BudgetIdRoute,
   ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport
