@@ -8,7 +8,8 @@ export const Route = createFileRoute("/admin/products")({
 });
 
 function AdminProducts() {
-  const { items, add, remove, loading } = useProducts();
+  const { items: allItems, add, remove, loading } = useProducts();
+  const items = allItems.filter((p) => !p.isKey);
   const { items: categories } = useCategories();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -43,6 +44,7 @@ function AdminProducts() {
         oldPrice: form.oldPrice ? Number(form.oldPrice) : undefined,
         image: form.image.trim(),
         paymentLink: form.paymentLink.trim(),
+        isKey: false,
       });
       setErr("");
       reset();
