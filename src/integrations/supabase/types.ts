@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      budgets: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          max_amount: number
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          max_amount: number
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          max_amount?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -60,9 +84,12 @@ export type Database = {
           description: string
           id: string
           image: string
+          is_key: boolean
           old_price: number | null
           payment_link: string
+          platform: string | null
           price: number
+          region: string | null
           subtitle: string
           title: string
         }
@@ -72,9 +99,12 @@ export type Database = {
           description?: string
           id?: string
           image?: string
+          is_key?: boolean
           old_price?: number | null
           payment_link?: string
+          platform?: string | null
           price?: number
+          region?: string | null
           subtitle?: string
           title: string
         }
@@ -84,9 +114,12 @@ export type Database = {
           description?: string
           id?: string
           image?: string
+          is_key?: boolean
           old_price?: number | null
           payment_link?: string
+          platform?: string | null
           price?: number
+          region?: string | null
           subtitle?: string
           title?: string
         }
