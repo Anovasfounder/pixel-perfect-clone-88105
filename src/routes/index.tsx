@@ -1,12 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus, Minus, Sparkles, Tag, Flame, Wallet, HelpCircle, Store } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ProductCard, type ProductCardData } from "@/components/site/ProductCard";
-import { useProducts } from "@/lib/db";
+import { useProducts, useBudgets } from "@/lib/db";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,15 +51,21 @@ function FaqItem({ q, a, defaultOpen = false }: { q: string; a?: string; default
 
 function Index() {
   const { items: dbProducts, loading } = useProducts();
-  const products: ProductCardData[] = dbProducts.map((p) => ({
+  const { items: budgets } = useBudgets();
+
+  const toCard = (p: typeof dbProducts[number]): ProductCardData => ({
     id: p.id,
     title: p.subtitle || p.title,
     subtitle: p.title,
     oldPrice: p.oldPrice ? `₹${p.oldPrice.toLocaleString("en-IN")}` : "",
     price: `₹${p.price.toLocaleString("en-IN")}`,
     image: p.image || undefined,
-  }));
+  });
+
+  const products = useMemo(() => dbProducts.filter((p) => !p.isKey).map(toCard), [dbProducts]);
+  const keyProducts = useMemo(() => dbProducts.filter((p) => p.isKey).map(toCard), [dbProducts]);
   const hasProducts = products.length > 0;
+  const hasKeys = keyProducts.length > 0;
 
   const SkeletonCard = () => (
     <div className="rounded-2xl bg-white/60 border border-white/60 shadow-sm aspect-[4/5] animate-pulse" />
@@ -71,7 +77,6 @@ function Index() {
   );
 
   const brands = ["Xbox", "PlayStation", "Unlock", "AI", "Switch", "Joy-Con"];
-  const budgets = ["₹499", "₹999", "₹1,999", "₹3,999"];
   const faqs = [
     "How long does a typical delivery take?",
     "What's your pricing structure?",
