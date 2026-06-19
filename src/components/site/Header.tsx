@@ -41,9 +41,12 @@ export function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex flex-wrap items-center gap-x-6 gap-y-2 py-3 text-[13px] font-medium text-gray-800 border-b border-gray-100">
+          {NAV.length === 0 && (
+            <span className="flex items-center gap-1.5 text-gray-400"><Sparkles className="w-3.5 h-3.5" /> Categories coming soon</span>
+          )}
           {NAV.map((n) => (
-            <Link key={n.label} to={n.to} className="flex items-center gap-1.5 hover:text-fuchsia-600 transition">
-              <n.icon className="w-3.5 h-3.5" /> {n.label}
+            <Link key={n.label} to="/" className="flex items-center gap-1.5 hover:text-fuchsia-600 transition">
+              <span className="text-base leading-none">{n.icon}</span> {n.label}
             </Link>
           ))}
           <Link to="/privacy" className="ml-auto hover:text-fuchsia-600 transition">PRIVACY POLICY</Link>
@@ -57,11 +60,11 @@ export function Header() {
               {NAV.map((n) => (
                 <Link
                   key={n.label}
-                  to={n.to}
+                  to="/"
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-fuchsia-50 text-sm font-medium text-gray-800"
                 >
-                  <n.icon className="w-4 h-4 text-fuchsia-600" /> {n.label}
+                  <span className="text-base leading-none">{n.icon}</span> {n.label}
                 </Link>
               ))}
               <div className="h-px bg-gray-100 my-1" />
