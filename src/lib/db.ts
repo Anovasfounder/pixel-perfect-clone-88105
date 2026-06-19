@@ -242,22 +242,9 @@ export function useSupabaseAuth() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    if (!session?.user) {
-      setIsAdmin(false);
-      return;
-    }
-    sb.from("user_roles")
-      .select("role")
-      .eq("user_id", session.user.id)
-      .eq("role", "admin")
-      .maybeSingle()
-      .then(({ data }: any) => {
-        if (!cancelled) setIsAdmin(!!data);
-      });
-    return () => {
-      cancelled = true;
-    };
+    // Single fixed admin account — anyone signed in as ADMIN_EMAIL is admin.
+    const email = session?.user?.email?.toLowerCase() ?? "";
+    setIsAdmin(email === ADMIN_EMAIL);
   }, [session]);
 
   // Sign in with the fixed admin email/password. On first ever attempt the
