@@ -27,6 +27,17 @@ export type Product = {
   oldPrice: number | null;
   image: string;
   paymentLink: string;
+  isKey: boolean;
+  platform: string | null;
+  region: string | null;
+  createdAt: string;
+};
+
+export type Budget = {
+  id: string;
+  label: string;
+  maxAmount: number;
+  sortOrder: number;
   createdAt: string;
 };
 
@@ -55,6 +66,18 @@ function mapProduct(row: any): Product {
     oldPrice: row.old_price !== null && row.old_price !== undefined ? Number(row.old_price) : null,
     image: row.image ?? "",
     paymentLink: row.payment_link ?? "",
+    isKey: !!row.is_key,
+    platform: row.platform ?? null,
+    region: row.region ?? null,
+    createdAt: row.created_at,
+  };
+}
+function mapBudget(row: any): Budget {
+  return {
+    id: row.id,
+    label: row.label,
+    maxAmount: Number(row.max_amount ?? 0),
+    sortOrder: Number(row.sort_order ?? 0),
     createdAt: row.created_at,
   };
 }
@@ -69,6 +92,7 @@ export function useCategories() {
       if (error) throw error;
       return (data ?? []).map(mapCategory);
     },
+    staleTime: 60_000,
   });
   const add = useMutation({
     mutationFn: async (input: { name: string; icon?: string }) => {
@@ -97,6 +121,7 @@ export function useProducts() {
       if (error) throw error;
       return (data ?? []).map(mapProduct);
     },
+    staleTime: 30_000,
   });
   const add = useMutation({
     mutationFn: async (input: {
@@ -108,6 +133,9 @@ export function useProducts() {
       oldPrice?: number;
       image: string;
       paymentLink: string;
+      isKey?: boolean;
+      platform?: string;
+      region?: string;
     }) => {
       const { error } = await sb.from("products").insert({
         title: input.title,
@@ -118,6 +146,9 @@ export function useProducts() {
         old_price: input.oldPrice ?? null,
         image: input.image,
         payment_link: input.paymentLink,
+        is_key: !!input.isKey,
+        platform: input.platform ?? null,
+        region: input.region ?? null,
       });
       if (error) throw error;
     },
@@ -152,6 +183,51 @@ export function useProduct(id: string | undefined) {
   });
 }
 
+// ============== Budgets ==============
+export function useBudgets() {
+  const qc = useQueryClient();
+  const q = useQuery<Budget[]>({
+    queryKey: ["budgets"],
+    queryFn: async () => {
+      const { data, error } = await sb.from("budgets").select("*").order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map(mapBudget);
+    },
+    staleTime: 60_000,
+  });
+  const add = useMutation({
+    mutationFn: async (input: { label: string; maxAmount: number; sortOrder?: number }) => {
+      const { error } = await sb.from("budgets").insert({
+        label: input.label,
+        max_amount: input.maxAmount,
+        sort_order: input.sortOrder ?? 0,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["budgets"] }),
+  });
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await sb.from("budgets").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["budgets"] }),
+  });
+  return { items: q.data ?? [], loading: q.isLoading, add, remove };
+}
+
+export function useBudget(id: string | undefined) {
+  return useQuery<Budget | null>({
+    queryKey: ["budget", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data, error } = await sb.from("budgets").select("*").eq("id", id).maybeSingle();
+      if (error) throw error;
+      return data ? mapBudget(data) : null;
+    },
+  });
+}
+
 // ============== Newsletter ==============
 export function useNewsletter() {
   const qc = useQueryClient();
@@ -178,7 +254,6 @@ export function useNewsletter() {
 
 export async function subscribeEmail(email: string) {
   const { error } = await sb.from("newsletter_subscribers").insert({ email });
-  // Ignore unique violation so users get a friendly success even if they re-subscribe
   if (error && (error.code === "23505" || /duplicate/i.test(error.message ?? ""))) return;
   if (error) throw error;
 }
@@ -242,14 +317,10 @@ export function useSupabaseAuth() {
   }, []);
 
   useEffect(() => {
-    // Single fixed admin account — anyone signed in as ADMIN_EMAIL is admin.
     const email = session?.user?.email?.toLowerCase() ?? "";
     setIsAdmin(email === ADMIN_EMAIL);
   }, [session]);
 
-  // Sign in with the fixed admin email/password. On first ever attempt the
-  // account doesn't exist yet — auto-bootstrap it. The DB trigger grants
-  // admin role to the first signup.
   const signIn = useCallback(async (email: string, password: string) => {
     if (email.trim().toLowerCase() !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
       throw new Error("Invalid credentials");
