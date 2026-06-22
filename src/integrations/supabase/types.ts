@@ -224,6 +224,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_product_payment_link: { Args: { p_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

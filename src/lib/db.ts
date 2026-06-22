@@ -5,9 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 // Cast supabase to any for tables not yet in generated types
 const sb = supabase as any;
 
-// ============== Fixed admin credentials ==============
-export const ADMIN_EMAIL = "bundlebyte@gmail.com";
-export const ADMIN_PASSWORD = "7992193730";
+// Columns safe for public consumption (payment_link intentionally excluded — it
+// is fetched on demand via the get_product_payment_link RPC at checkout time).
+const PRODUCT_PUBLIC_COLUMNS =
+  "id,title,subtitle,description,category_id,price,old_price,image,is_key,platform,region,created_at";
+
+export async function fetchProductPaymentLink(productId: string): Promise<string> {
+  const { data, error } = await sb.rpc("get_product_payment_link", { p_id: productId });
+  if (error) throw error;
+  return typeof data === "string" ? data : "";
+}
 
 // ============== Types ==============
 export type Category = {
@@ -117,7 +124,7 @@ export function useProducts() {
   const q = useQuery<Product[]>({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data, error } = await sb.from("products").select("*").order("created_at", { ascending: false });
+      const { data, error } = await sb.from("products").select(PRODUCT_PUBLIC_COLUMNS).order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []).map(mapProduct);
     },
@@ -176,7 +183,7 @@ export function useProduct(id: string | undefined) {
     queryKey: ["product", id],
     enabled: !!id,
     queryFn: async () => {
-      const { data, error } = await sb.from("products").select("*").eq("id", id).maybeSingle();
+      const { data, error } = await sb.from("products").select(PRODUCT_PUBLIC_COLUMNS).eq("id", id).maybeSingle();
       if (error) throw error;
       return data ? mapProduct(data) : null;
     },
@@ -355,7 +362,7 @@ export async function recordSale(input: {
   if (error) throw error;
 }
 
-// ============== Auth (Supabase) — fixed single admin account ==============
+// ============== Auth (Supabase) — admin role verified server-side ==============
 export function useSupabaseAuth() {
   const [session, setSession] = useState<any>(null);
   const [ready, setReady] = useState(false);
@@ -376,29 +383,29 @@ export function useSupabaseAuth() {
   }, []);
 
   useEffect(() => {
-    const email = session?.user?.email?.toLowerCase() ?? "";
-    setIsAdmin(email === ADMIN_EMAIL);
+    let cancelled = false;
+    const uid = session?.user?.id;
+    if (!uid) {
+      setIsAdmin(false);
+      return;
+    }
+    // Verify admin status against user_roles via the SECURITY DEFINER has_role
+    // RPC. The flag is informational for UI gating only — every sensitive write
+    // is re-checked server-side by RLS using has_role(auth.uid(), 'admin').
+    sb.rpc("has_role", { _user_id: uid, _role: "admin" }).then(({ data, error }: any) => {
+      if (cancelled) return;
+      setIsAdmin(!error && data === true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [session]);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    if (email.trim().toLowerCase() !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-      throw new Error("Invalid credentials");
-    }
-    const { error } = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
-    if (!error) return;
-    const msg = (error.message ?? "").toLowerCase();
-    if (msg.includes("invalid") || msg.includes("not found") || msg.includes("credentials")) {
-      const { error: suErr } = await supabase.auth.signUp({
-        email: ADMIN_EMAIL,
-        password: ADMIN_PASSWORD,
-        options: { emailRedirectTo: typeof window !== "undefined" ? window.location.origin + "/admin" : undefined },
-      });
-      if (suErr) throw suErr;
-      const { error: siErr } = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
-      if (siErr) throw siErr;
-      return;
-    }
-    throw error;
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !password) throw new Error("Enter your email and password");
+    const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
+    if (error) throw error;
   }, []);
 
   const signOut = useCallback(async () => {

@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useSupabaseAuth, ADMIN_EMAIL } from "@/lib/db";
+import { useSupabaseAuth } from "@/lib/db";
 import { LayoutDashboard, PackagePlus, FolderTree, Mail, BarChart3, LogOut, Menu, X, Sparkles, ShieldCheck, Lock, KeyRound, Wallet, Megaphone } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
@@ -74,7 +74,7 @@ function AdminLayout() {
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder={ADMIN_EMAIL}
+                placeholder="you@example.com"
                 className="mt-1 w-full h-11 px-3 rounded-xl bg-white/80 border border-gray-200 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100 outline-none text-sm transition"
               />
             </div>

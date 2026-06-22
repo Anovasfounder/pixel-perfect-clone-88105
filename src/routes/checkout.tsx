@@ -6,7 +6,7 @@ import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ShieldCheck, ArrowRight, CheckCircle2, Mail, User as UserIcon, ExternalLink } from "lucide-react";
-import { recordSale } from "@/lib/db";
+import { recordSale, fetchProductPaymentLink } from "@/lib/db";
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -14,9 +14,8 @@ export const Route = createFileRoute("/checkout")({
     title: typeof s.title === "string" ? s.title : undefined,
     price: typeof s.price === "number" ? s.price : Number(s.price) || undefined,
     image: typeof s.image === "string" ? s.image : undefined,
-    paymentLink: typeof s.paymentLink === "string" ? s.paymentLink : undefined,
   }),
-  head: () => ({ meta: [{ title: "Checkout — BundleByte" }] }),
+  head: () => ({ meta: [{ title: "Checkout — BundleByte" }, { name: "robots", content: "noindex,nofollow" }] }),
   component: CheckoutPage,
 });
 
@@ -32,12 +31,14 @@ function CheckoutPage() {
   const navigate = useNavigate();
 
   const product = search.productId && search.title && search.price
-    ? { id: search.productId, title: search.title, price: Number(search.price), image: search.image, paymentLink: search.paymentLink }
+    ? { id: search.productId, title: search.title, price: Number(search.price), image: search.image }
     : null;
 
   const [form, setForm] = useState({ name: "", email: "" });
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const [ready, setReady] = useState(false);
+  const [paymentLink, setPaymentLink] = useState<string>("");
+  const [submitError, setSubmitError] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,23 +52,32 @@ function CheckoutPage() {
       return;
     }
     setErrors({});
-    if (product) {
-      try {
-        await recordSale({
-          productId: product.id,
-          productTitle: product.title,
-          customerName: form.name,
-          customerEmail: form.email,
-          amount: product.price,
-        });
-      } catch {
-        // still let the user proceed to payment even if logging fails
-      }
+    setSubmitError("");
+    if (!product) return;
+    try {
+      await recordSale({
+        productId: product.id,
+        productTitle: product.title,
+        customerName: form.name,
+        customerEmail: form.email,
+        amount: product.price,
+      });
+    } catch {
+      // continue — fulfilment uses the verified payment link below
     }
-    setReady(true);
+    try {
+      const link = await fetchProductPaymentLink(product.id);
+      if (!link || !/^https:\/\//i.test(link)) {
+        setSubmitError("Payment is temporarily unavailable for this product. Please try again later.");
+        return;
+      }
+      setPaymentLink(link);
+      setReady(true);
+    } catch {
+      setSubmitError("Could not start payment. Please try again.");
+    }
   };
 
-  const paymentLink = product?.paymentLink || "https://razorpay.com/payment-link/";
 
   if (!product) {
     return (
@@ -141,6 +151,8 @@ function CheckoutPage() {
                 <ShieldCheck className="w-4 h-4 text-emerald-600" /> Your details are encrypted & never shared.
               </div>
 
+              {submitError && <p className="text-xs text-red-500">{submitError}</p>}
+
               {!ready ? (
                 <button
                   type="submit"
@@ -156,7 +168,7 @@ function CheckoutPage() {
                   <a
                     href={paymentLink}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noreferrer noopener"
                     className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 shadow-lg hover:opacity-95 transition"
                   >
                     Pay now · {formatINR(product.price)} <ExternalLink className="w-4 h-4" />
