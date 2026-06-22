@@ -11,8 +11,23 @@ import { ArrowLeft, FolderTree } from "lucide-react";
 
 const sb = supabase as any;
 
+const SITE_URL = "https://glass-morph-vision.lovable.app";
+
 export const Route = createFileRoute("/category/$id")({
-  head: () => ({ meta: [{ title: "Category — BundleByte" }] }),
+  head: ({ params }) => {
+    const canonical = `${SITE_URL}/category/${params.id}`;
+    const description = "Browse curated digital keys and software in this BundleByte category — verified licences with instant delivery and dedicated support.";
+    return {
+      meta: [
+        { title: "Shop this category — BundleByte" },
+        { name: "description", content: description },
+        { property: "og:title", content: "Shop this category — BundleByte" },
+        { property: "og:description", content: description },
+        { property: "og:url", content: canonical },
+      ],
+      links: [{ rel: "canonical", href: canonical }],
+    };
+  },
   component: CategoryPage,
 });
 
