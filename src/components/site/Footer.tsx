@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Twitter, Youtube, Mail, Send, CheckCircle2 } from "lucide-react";
+import { Instagram, Twitter, Youtube, Mail, Send, CheckCircle2, Heart } from "lucide-react";
 import { useState } from "react";
 import { subscribeEmail } from "@/lib/db";
 
