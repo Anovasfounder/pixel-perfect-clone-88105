@@ -6,7 +6,7 @@ import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ShieldCheck, ArrowRight, CheckCircle2, Mail, User as UserIcon, ExternalLink } from "lucide-react";
-import { recordSale } from "@/lib/db";
+import { recordSale, fetchProductPaymentLink } from "@/lib/db";
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -14,9 +14,8 @@ export const Route = createFileRoute("/checkout")({
     title: typeof s.title === "string" ? s.title : undefined,
     price: typeof s.price === "number" ? s.price : Number(s.price) || undefined,
     image: typeof s.image === "string" ? s.image : undefined,
-    paymentLink: typeof s.paymentLink === "string" ? s.paymentLink : undefined,
   }),
-  head: () => ({ meta: [{ title: "Checkout — BundleByte" }] }),
+  head: () => ({ meta: [{ title: "Checkout — BundleByte" }, { name: "robots", content: "noindex,nofollow" }] }),
   component: CheckoutPage,
 });
 
