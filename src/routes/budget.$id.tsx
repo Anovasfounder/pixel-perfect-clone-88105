@@ -8,7 +8,20 @@ import { useBudget, useProducts } from "@/lib/db";
 import { ArrowLeft, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/budget/$id")({
-  head: () => ({ meta: [{ title: "Budget Picks — BundleByte" }] }),
+  head: ({ params }) => {
+    const canonical = `https://glass-morph-vision.lovable.app/budget/${params.id}`;
+    const description = "Hand-picked digital keys, game codes and software licences that fit this budget — verified and delivered instantly by BundleByte.";
+    return {
+      meta: [
+        { title: "Picks within your budget — BundleByte" },
+        { name: "description", content: description },
+        { property: "og:title", content: "Picks within your budget — BundleByte" },
+        { property: "og:description", content: description },
+        { property: "og:url", content: canonical },
+      ],
+      links: [{ rel: "canonical", href: canonical }],
+    };
+  },
   component: BudgetPage,
 });
 
