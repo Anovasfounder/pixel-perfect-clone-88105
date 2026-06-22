@@ -62,8 +62,6 @@ export function Footer() {
           <Link to="/privacy" className="hover:text-fuchsia-600 transition">Privacy Policy</Link>
           <span className="text-gray-300">•</span>
           <Link to="/terms" className="hover:text-fuchsia-600 transition">Terms & Conditions</Link>
-          <span className="text-gray-300">•</span>
-          <Link to="/admin" className="hover:text-fuchsia-600 transition">Admin</Link>
         </nav>
         <div className="flex items-center gap-3">
           {[Instagram, Twitter, Youtube, Mail].map((Icon, i) => (

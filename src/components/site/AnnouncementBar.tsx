@@ -1,21 +1,27 @@
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const ANNOUNCEMENTS = [
-  "✨ Free instant delivery on all digital keys — worldwide",
-  "🔥 Flash sale: Up to 60% OFF on premium software keys",
-  "🎮 New game keys added daily — check the trending section",
-  "💎 Premium subscriptions starting at just ₹399",
-];
+import { useAnnouncements } from "@/lib/db";
 
 export function AnnouncementBar() {
+  const { items } = useAnnouncements({ activeOnly: true });
+  const messages = items.map((a) => a.message);
   const [i, setI] = useState(0);
+
   useEffect(() => {
-    const t = setInterval(() => setI((p) => (p + 1) % ANNOUNCEMENTS.length), 4000);
+    if (messages.length <= 1) return;
+    const t = setInterval(() => setI((p) => (p + 1) % messages.length), 4000);
     return () => clearInterval(t);
-  }, []);
-  const prev = () => setI((p) => (p - 1 + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length);
-  const next = () => setI((p) => (p + 1) % ANNOUNCEMENTS.length);
+  }, [messages.length]);
+
+  useEffect(() => {
+    if (i >= messages.length) setI(0);
+  }, [messages.length, i]);
+
+  if (messages.length === 0) return null;
+
+  const prev = () => setI((p) => (p - 1 + messages.length) % messages.length);
+  const next = () => setI((p) => (p + 1) % messages.length);
+
   return (
     <div className="w-full bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 text-white text-[12px] py-2 px-4 flex items-center justify-center gap-3 relative overflow-hidden">
       <Sparkles className="w-3.5 h-3.5 animate-pulse hidden sm:block" />
@@ -24,7 +30,7 @@ export function AnnouncementBar() {
       </button>
       <div className="overflow-hidden h-4 min-w-[240px] md:min-w-[420px] text-center">
         <div className="transition-transform duration-500 ease-out" style={{ transform: `translateY(-${i * 16}px)` }}>
-          {ANNOUNCEMENTS.map((a, k) => (
+          {messages.map((a, k) => (
             <div key={k} className="h-4 leading-4 whitespace-nowrap font-medium tracking-wide">{a}</div>
           ))}
         </div>
