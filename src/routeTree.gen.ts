@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -30,6 +31,11 @@ import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcem
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/privacy': typeof PrivacyRoute
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/privacy': typeof PrivacyRoute
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/privacy': typeof PrivacyRoute
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/privacy'
     | '/search'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin/announcements'
     | '/admin/budgets'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/privacy'
     | '/search'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin/announcements'
     | '/admin/budgets'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/privacy'
     | '/search'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin/announcements'
     | '/admin/budgets'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   PrivacyRoute: typeof PrivacyRoute
   SearchRoute: typeof SearchRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   BudgetIdRoute: typeof BudgetIdRoute
   CategoryIdRoute: typeof CategoryIdRoute
@@ -248,6 +261,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -395,6 +415,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   PrivacyRoute: PrivacyRoute,
   SearchRoute: SearchRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   BudgetIdRoute: BudgetIdRoute,
   CategoryIdRoute: CategoryIdRoute,

@@ -79,14 +79,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BundleByte — Digital Keys & Software Marketplace" },
-      { name: "description", content: "Trending apps, games and software keys with instant delivery at unbeatable prices." },
-      { property: "og:title", content: "BundleByte — Digital Keys & Software Marketplace" },
-      { property: "og:description", content: "Trending apps, games and software keys with instant delivery at unbeatable prices." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:site_name", content: "BundleByte" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "BundleByte",
+              url: "https://glass-morph-vision.lovable.app",
+              logo: "https://i.ibb.co/DDkjtbgG/Whats-App-Image-2026-06-12-at-15-44-39.jpg",
+            },
+            {
+              "@type": "WebSite",
+              name: "BundleByte",
+              url: "https://glass-morph-vision.lovable.app",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "https://glass-morph-vision.lovable.app/search?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            },
+          ],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
