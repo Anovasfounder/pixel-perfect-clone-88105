@@ -74,7 +74,7 @@ function AdminLayout() {
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder={ADMIN_EMAIL}
+                placeholder="you@example.com"
                 className="mt-1 w-full h-11 px-3 rounded-xl bg-white/80 border border-gray-200 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100 outline-none text-sm transition"
               />
             </div>
