@@ -1,0 +1,10 @@
+# BundleByte
+
+> Digital keys and software marketplace — buy verified game keys, software licences and subscriptions with instant inbox delivery.
+
+## Pages
+
+- [Home](/): Featured products, categories, best sellers and budget picks.
+- [Search](/search): Search the full catalogue of digital keys and software.
+- [Privacy Policy](/privacy): How we handle customer data.
+- [Terms & Conditions](/terms): Purchase, delivery and refund terms.
