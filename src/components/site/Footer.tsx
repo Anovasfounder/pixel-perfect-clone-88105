@@ -85,7 +85,7 @@ export function Footer() {
           <Heart className="w-3 h-3 text-primary fill-primary/15" aria-hidden="true" />
           by
           <a
-            href="https://anovas.tech"
+            href="https://anovas.co.in"
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-foreground hover:text-primary transition-colors"
