@@ -31,12 +31,14 @@ function CheckoutPage() {
   const navigate = useNavigate();
 
   const product = search.productId && search.title && search.price
-    ? { id: search.productId, title: search.title, price: Number(search.price), image: search.image, paymentLink: search.paymentLink }
+    ? { id: search.productId, title: search.title, price: Number(search.price), image: search.image }
     : null;
 
   const [form, setForm] = useState({ name: "", email: "" });
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
   const [ready, setReady] = useState(false);
+  const [paymentLink, setPaymentLink] = useState<string>("");
+  const [submitError, setSubmitError] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,23 +52,32 @@ function CheckoutPage() {
       return;
     }
     setErrors({});
-    if (product) {
-      try {
-        await recordSale({
-          productId: product.id,
-          productTitle: product.title,
-          customerName: form.name,
-          customerEmail: form.email,
-          amount: product.price,
-        });
-      } catch {
-        // still let the user proceed to payment even if logging fails
-      }
+    setSubmitError("");
+    if (!product) return;
+    try {
+      await recordSale({
+        productId: product.id,
+        productTitle: product.title,
+        customerName: form.name,
+        customerEmail: form.email,
+        amount: product.price,
+      });
+    } catch {
+      // continue — fulfilment uses the verified payment link below
     }
-    setReady(true);
+    try {
+      const link = await fetchProductPaymentLink(product.id);
+      if (!link || !/^https:\/\//i.test(link)) {
+        setSubmitError("Payment is temporarily unavailable for this product. Please try again later.");
+        return;
+      }
+      setPaymentLink(link);
+      setReady(true);
+    } catch {
+      setSubmitError("Could not start payment. Please try again.");
+    }
   };
 
-  const paymentLink = product?.paymentLink || "https://razorpay.com/payment-link/";
 
   if (!product) {
     return (
