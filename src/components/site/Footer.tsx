@@ -79,6 +79,21 @@ export function Footer() {
       <div className="border-t border-gray-200 py-4 text-center text-[11px] text-gray-500">
         © {new Date().getFullYear()} BundleByte. All rights reserved.
       </div>
+      <div className="border-t border-gray-100 bg-gradient-to-b from-gray-50/50 to-gray-100/50 py-3 text-center">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground tracking-wide">
+          Developed with
+          <Heart className="w-3 h-3 text-fuchsia-500 fill-fuchsia-500/20" aria-hidden="true" />
+          by
+          <a
+            href="https://anovas.tech"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-foreground hover:text-primary transition-colors"
+          >
+            Anovas
+          </a>
+        </span>
+      </div>
     </footer>
   );
 }
