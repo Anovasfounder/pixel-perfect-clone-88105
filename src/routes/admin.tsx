@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useSupabaseAuth, ADMIN_EMAIL } from "@/lib/db";
+import { useSupabaseAuth } from "@/lib/db";
 import { LayoutDashboard, PackagePlus, FolderTree, Mail, BarChart3, LogOut, Menu, X, Sparkles, ShieldCheck, Lock, KeyRound, Wallet, Megaphone } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
