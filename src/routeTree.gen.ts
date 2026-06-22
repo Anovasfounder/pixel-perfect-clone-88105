@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -29,6 +30,11 @@ import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcem
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRoute
   '/privacy': typeof PrivacyRoute
+  '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/privacy': typeof PrivacyRoute
+  '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRoute
   '/privacy': typeof PrivacyRoute
+  '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkout'
     | '/privacy'
+    | '/search'
     | '/terms'
     | '/admin/announcements'
     | '/admin/budgets'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/'
     | '/checkout'
     | '/privacy'
+    | '/search'
     | '/terms'
     | '/admin/announcements'
     | '/admin/budgets'
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkout'
     | '/privacy'
+    | '/search'
     | '/terms'
     | '/admin/announcements'
     | '/admin/budgets'
@@ -222,6 +234,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CheckoutRoute: typeof CheckoutRoute
   PrivacyRoute: typeof PrivacyRoute
+  SearchRoute: typeof SearchRoute
   TermsRoute: typeof TermsRoute
   BudgetIdRoute: typeof BudgetIdRoute
   CategoryIdRoute: typeof CategoryIdRoute
@@ -235,6 +248,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -374,6 +394,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CheckoutRoute: CheckoutRoute,
   PrivacyRoute: PrivacyRoute,
+  SearchRoute: SearchRoute,
   TermsRoute: TermsRoute,
   BudgetIdRoute: BudgetIdRoute,
   CategoryIdRoute: CategoryIdRoute,
