@@ -5,9 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 // Cast supabase to any for tables not yet in generated types
 const sb = supabase as any;
 
-// ============== Fixed admin credentials ==============
-export const ADMIN_EMAIL = "bundlebyte@gmail.com";
-export const ADMIN_PASSWORD = "7992193730";
+// Columns safe for public consumption (payment_link intentionally excluded — it
+// is fetched on demand via the get_product_payment_link RPC at checkout time).
+const PRODUCT_PUBLIC_COLUMNS =
+  "id,title,subtitle,description,category_id,price,old_price,image,is_key,platform,region,created_at";
+
+export async function fetchProductPaymentLink(productId: string): Promise<string> {
+  const { data, error } = await sb.rpc("get_product_payment_link", { p_id: productId });
+  if (error) throw error;
+  return typeof data === "string" ? data : "";
+}
 
 // ============== Types ==============
 export type Category = {
