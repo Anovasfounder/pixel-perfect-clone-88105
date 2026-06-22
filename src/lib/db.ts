@@ -183,7 +183,7 @@ export function useProduct(id: string | undefined) {
     queryKey: ["product", id],
     enabled: !!id,
     queryFn: async () => {
-      const { data, error } = await sb.from("products").select("*").eq("id", id).maybeSingle();
+      const { data, error } = await sb.from("products").select(PRODUCT_PUBLIC_COLUMNS).eq("id", id).maybeSingle();
       if (error) throw error;
       return data ? mapProduct(data) : null;
     },
