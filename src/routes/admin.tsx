@@ -4,7 +4,7 @@ import { useSupabaseAuth, ADMIN_EMAIL } from "@/lib/db";
 import { LayoutDashboard, PackagePlus, FolderTree, Mail, BarChart3, LogOut, Menu, X, Sparkles, ShieldCheck, Lock, KeyRound, Wallet, Megaphone } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — BundleByte" }] }),
+  head: () => ({ meta: [{ title: "Admin — BundleByte" }, { name: "robots", content: "noindex,nofollow" }] }),
   component: AdminLayout,
 });
 

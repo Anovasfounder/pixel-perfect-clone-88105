@@ -9,8 +9,12 @@ export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms & Conditions — BundleByte" },
-      { name: "description", content: "The terms under which you use the BundleByte marketplace." },
+      { name: "description", content: "Read the terms governing purchases, delivery, refunds and support on the BundleByte digital keys and software marketplace." },
+      { property: "og:title", content: "Terms & Conditions — BundleByte" },
+      { property: "og:description", content: "Terms governing purchases, delivery, refunds and support on BundleByte." },
+      { property: "og:url", content: "https://glass-morph-vision.lovable.app/terms" },
     ],
+    links: [{ rel: "canonical", href: "https://glass-morph-vision.lovable.app/terms" }],
   }),
   component: TermsPage,
 });

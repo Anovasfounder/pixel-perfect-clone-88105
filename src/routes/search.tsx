@@ -15,7 +15,21 @@ const schema = z.object({
 
 export const Route = createFileRoute("/search")({
   validateSearch: zodValidator(schema),
-  head: () => ({ meta: [{ title: "Search — BundleByte" }] }),
+  head: () => {
+    const canonical = "https://glass-morph-vision.lovable.app/search";
+    const description = "Search BundleByte's catalogue of verified digital keys, game codes, software licences and subscriptions across every platform.";
+    return {
+      meta: [
+        { title: "Search digital keys & software — BundleByte" },
+        { name: "description", content: description },
+        { property: "og:title", content: "Search digital keys & software — BundleByte" },
+        { property: "og:description", content: description },
+        { property: "og:url", content: canonical },
+        { name: "robots", content: "noindex,follow" },
+      ],
+      links: [{ rel: "canonical", href: canonical }],
+    };
+  },
   component: SearchPage,
 });
 

@@ -6,16 +6,100 @@ import { Reveal } from "@/components/site/Reveal";
 import { ProductCard } from "@/components/site/ProductCard";
 import { ShoppingCart, ShieldCheck, Zap, BadgeCheck, Star, ChevronRight } from "lucide-react";
 import { useProduct, useProducts } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
 
 const PRODUCT_IMG = "https://i.ibb.co/F1zdP7n/Rectangle-207.png";
+const SITE_URL = "https://glass-morph-vision.lovable.app";
+
+type ProductHead = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  price: number;
+} | null;
 
 export const Route = createFileRoute("/product/$id")({
-  head: () => ({
-    meta: [
-      { title: "Product — BundleByte" },
-      { name: "description", content: "Premium digital keys with instant delivery." },
-    ],
-  }),
+  loader: async ({ params }): Promise<ProductHead> => {
+    try {
+      const url =
+        (typeof process !== "undefined" && (process as any).env?.SUPABASE_URL) ||
+        import.meta.env.VITE_SUPABASE_URL;
+      const key =
+        (typeof process !== "undefined" && (process as any).env?.SUPABASE_PUBLISHABLE_KEY) ||
+        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      if (!url || !key) return null;
+      const sb = createClient(url, key, {
+        auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+      });
+      const { data } = await sb
+        .from("products")
+        .select("id,title,subtitle,description,image,price")
+        .eq("id", params.id)
+        .maybeSingle();
+      if (!data) return null;
+      const baseDesc =
+        data.description || data.subtitle || `Buy ${data.title} as a verified digital key with instant inbox delivery.`;
+      return {
+        id: data.id,
+        title: data.title ?? "Digital Key",
+        description: baseDesc.slice(0, 300),
+        image: data.image || PRODUCT_IMG,
+        price: Number(data.price ?? 0),
+      };
+    } catch {
+      return null;
+    }
+  },
+  head: ({ params, loaderData }) => {
+    const p = loaderData as ProductHead;
+    const title = p ? `Buy ${p.title} Digital Key — BundleByte` : "Digital Key — BundleByte";
+    const base =
+      p?.description ||
+      "Verified digital key with instant inbox delivery, 24/7 support and official licensing on BundleByte.";
+    const description =
+      base.length < 50
+        ? `${base} Instant delivery, official licence and dedicated support included.`
+        : base;
+    const canonical = `${SITE_URL}/product/${params.id}`;
+    const image = p?.image || PRODUCT_IMG;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: canonical },
+        { property: "og:type", content: "product" },
+        { property: "og:image", content: image },
+        { name: "twitter:image", content: image },
+      ],
+      links: [{ rel: "canonical", href: canonical }],
+      scripts: p
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                name: p.title,
+                description,
+                image: p.image,
+                url: canonical,
+                brand: { "@type": "Brand", name: "BundleByte" },
+                offers: {
+                  "@type": "Offer",
+                  url: canonical,
+                  priceCurrency: "INR",
+                  price: p.price,
+                  availability: "https://schema.org/InStock",
+                },
+              }),
+            },
+          ]
+        : undefined,
+    };
+  },
   component: ProductPage,
 });
 

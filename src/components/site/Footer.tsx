@@ -64,8 +64,13 @@ export function Footer() {
           <Link to="/terms" className="hover:text-fuchsia-600 transition">Terms & Conditions</Link>
         </nav>
         <div className="flex items-center gap-3">
-          {[Instagram, Twitter, Youtube, Mail].map((Icon, i) => (
-            <button key={i} className="w-9 h-9 grid place-items-center rounded-full backdrop-blur-md bg-white/70 border border-white/60 shadow-sm hover:bg-fuchsia-50 hover:text-fuchsia-600 transition">
+          {[
+            { Icon: Instagram, label: "Follow BundleByte on Instagram" },
+            { Icon: Twitter, label: "Follow BundleByte on Twitter" },
+            { Icon: Youtube, label: "Subscribe to BundleByte on YouTube" },
+            { Icon: Mail, label: "Email BundleByte support" },
+          ].map(({ Icon, label }) => (
+            <button key={label} aria-label={label} className="w-9 h-9 grid place-items-center rounded-full backdrop-blur-md bg-white/70 border border-white/60 shadow-sm hover:bg-fuchsia-50 hover:text-fuchsia-600 transition">
               <Icon className="w-4 h-4" />
             </button>
           ))}
