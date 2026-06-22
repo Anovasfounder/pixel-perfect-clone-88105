@@ -151,6 +151,8 @@ function CheckoutPage() {
                 <ShieldCheck className="w-4 h-4 text-emerald-600" /> Your details are encrypted & never shared.
               </div>
 
+              {submitError && <p className="text-xs text-red-500">{submitError}</p>}
+
               {!ready ? (
                 <button
                   type="submit"
@@ -166,7 +168,7 @@ function CheckoutPage() {
                   <a
                     href={paymentLink}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noreferrer noopener"
                     className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 shadow-lg hover:opacity-95 transition"
                   >
                     Pay now · {formatINR(product.price)} <ExternalLink className="w-4 h-4" />
