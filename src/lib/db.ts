@@ -124,7 +124,7 @@ export function useProducts() {
   const q = useQuery<Product[]>({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data, error } = await sb.from("products").select("*").order("created_at", { ascending: false });
+      const { data, error } = await sb.from("products").select(PRODUCT_PUBLIC_COLUMNS).order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []).map(mapProduct);
     },
