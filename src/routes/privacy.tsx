@@ -9,8 +9,12 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "Privacy Policy — BundleByte" },
-      { name: "description", content: "How BundleByte collects, uses, and protects your information." },
+      { name: "description", content: "Learn how BundleByte collects, uses, stores and protects your personal information when you buy digital keys and software." },
+      { property: "og:title", content: "Privacy Policy — BundleByte" },
+      { property: "og:description", content: "How BundleByte collects, uses, stores and protects your personal information." },
+      { property: "og:url", content: "https://glass-morph-vision.lovable.app/privacy" },
     ],
+    links: [{ rel: "canonical", href: "https://glass-morph-vision.lovable.app/privacy" }],
   }),
   component: PrivacyPage,
 });
