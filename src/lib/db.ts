@@ -228,6 +228,65 @@ export function useBudget(id: string | undefined) {
   });
 }
 
+// ============== Announcements ==============
+export type Announcement = {
+  id: string;
+  message: string;
+  sortOrder: number;
+  active: boolean;
+  createdAt: string;
+};
+function mapAnnouncement(row: any): Announcement {
+  return {
+    id: row.id,
+    message: row.message,
+    sortOrder: Number(row.sort_order ?? 0),
+    active: !!row.active,
+    createdAt: row.created_at,
+  };
+}
+export function useAnnouncements(opts?: { activeOnly?: boolean }) {
+  const qc = useQueryClient();
+  const activeOnly = opts?.activeOnly ?? false;
+  const q = useQuery<Announcement[]>({
+    queryKey: ["announcements", { activeOnly }],
+    queryFn: async () => {
+      let query = sb.from("announcements").select("*").order("sort_order", { ascending: true });
+      if (activeOnly) query = query.eq("active", true);
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []).map(mapAnnouncement);
+    },
+    staleTime: 60_000,
+  });
+  const add = useMutation({
+    mutationFn: async (input: { message: string; sortOrder?: number; active?: boolean }) => {
+      const { error } = await sb.from("announcements").insert({
+        message: input.message,
+        sort_order: input.sortOrder ?? 0,
+        active: input.active ?? true,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["announcements"] }),
+  });
+  const toggle = useMutation({
+    mutationFn: async (input: { id: string; active: boolean }) => {
+      const { error } = await sb.from("announcements").update({ active: input.active }).eq("id", input.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["announcements"] }),
+  });
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await sb.from("announcements").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["announcements"] }),
+  });
+  return { items: q.data ?? [], loading: q.isLoading, add, toggle, remove };
+}
+
 // ============== Newsletter ==============
 export function useNewsletter() {
   const qc = useQueryClient();
