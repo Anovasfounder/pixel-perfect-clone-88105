@@ -113,7 +113,6 @@ function ProductPage() {
   const img = product?.image || PRODUCT_IMG;
   const price = product?.price ?? 2499;
   const oldPrice = product?.oldPrice ?? 3299;
-  const paymentLink = product?.paymentLink || "https://razorpay.com/payment-link/";
   const description = product?.description ||
     `Unlock the full power of ${title} with an officially licensed digital key delivered straight to your inbox.`;
 
@@ -124,7 +123,7 @@ function ProductPage() {
   const goCheckout = () =>
     navigate({
       to: "/checkout",
-      search: { productId: id, title, price, image: img, paymentLink },
+      search: { productId: id, title, price, image: img },
     });
 
   return (
