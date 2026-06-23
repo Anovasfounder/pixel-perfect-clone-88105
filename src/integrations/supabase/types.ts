@@ -41,6 +41,27 @@ export type Database = {
         }
         Relationships: []
       }
+      brands: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           created_at: string
@@ -70,18 +91,21 @@ export type Database = {
           created_at: string
           icon: string | null
           id: string
+          is_key: boolean
           name: string
         }
         Insert: {
           created_at?: string
           icon?: string | null
           id?: string
+          is_key?: boolean
           name: string
         }
         Update: {
           created_at?: string
           icon?: string | null
           id?: string
+          is_key?: boolean
           name?: string
         }
         Relationships: []
@@ -106,12 +130,14 @@ export type Database = {
       }
       products: {
         Row: {
+          brand_id: string | null
           category_id: string | null
           created_at: string
           description: string
           id: string
           image: string
           is_key: boolean
+          is_trending: boolean
           old_price: number | null
           payment_link: string
           platform: string | null
@@ -121,12 +147,14 @@ export type Database = {
           title: string
         }
         Insert: {
+          brand_id?: string | null
           category_id?: string | null
           created_at?: string
           description?: string
           id?: string
           image?: string
           is_key?: boolean
+          is_trending?: boolean
           old_price?: number | null
           payment_link?: string
           platform?: string | null
@@ -136,12 +164,14 @@ export type Database = {
           title: string
         }
         Update: {
+          brand_id?: string | null
           category_id?: string | null
           created_at?: string
           description?: string
           id?: string
           image?: string
           is_key?: boolean
+          is_trending?: boolean
           old_price?: number | null
           payment_link?: string
           platform?: string | null
@@ -151,6 +181,13 @@ export type Database = {
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "products_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_category_id_fkey"
             columns: ["category_id"]
