@@ -23,7 +23,6 @@ import { Route as BudgetIdRouteImport } from './routes/budget.$id'
 import { Route as AdminSalesRouteImport } from './routes/admin.sales'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminNewsletterRouteImport } from './routes/admin.newsletter'
-import { Route as AdminKeysRouteImport } from './routes/admin.keys'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminBudgetsRouteImport } from './routes/admin.budgets'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
@@ -98,11 +97,6 @@ const AdminNewsletterRoute = AdminNewsletterRouteImport.update({
   path: '/newsletter',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminKeysRoute = AdminKeysRouteImport.update({
-  id: '/keys',
-  path: '/keys',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -130,7 +124,6 @@ export interface FileRoutesByFullPath {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/categories': typeof AdminCategoriesRoute
-  '/admin/keys': typeof AdminKeysRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sales': typeof AdminSalesRoute
@@ -149,7 +142,6 @@ export interface FileRoutesByTo {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/categories': typeof AdminCategoriesRoute
-  '/admin/keys': typeof AdminKeysRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sales': typeof AdminSalesRoute
@@ -170,7 +162,6 @@ export interface FileRoutesById {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/categories': typeof AdminCategoriesRoute
-  '/admin/keys': typeof AdminKeysRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sales': typeof AdminSalesRoute
@@ -192,7 +183,6 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/budgets'
     | '/admin/categories'
-    | '/admin/keys'
     | '/admin/newsletter'
     | '/admin/products'
     | '/admin/sales'
@@ -211,7 +201,6 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/budgets'
     | '/admin/categories'
-    | '/admin/keys'
     | '/admin/newsletter'
     | '/admin/products'
     | '/admin/sales'
@@ -231,7 +220,6 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/budgets'
     | '/admin/categories'
-    | '/admin/keys'
     | '/admin/newsletter'
     | '/admin/products'
     | '/admin/sales'
@@ -354,13 +342,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNewsletterRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/keys': {
-      id: '/admin/keys'
-      path: '/keys'
-      fullPath: '/admin/keys'
-      preLoaderRoute: typeof AdminKeysRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/categories': {
       id: '/admin/categories'
       path: '/categories'
@@ -389,7 +370,6 @@ interface AdminRouteChildren {
   AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminBudgetsRoute: typeof AdminBudgetsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
-  AdminKeysRoute: typeof AdminKeysRoute
   AdminNewsletterRoute: typeof AdminNewsletterRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminSalesRoute: typeof AdminSalesRoute
@@ -400,7 +380,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminBudgetsRoute: AdminBudgetsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
-  AdminKeysRoute: AdminKeysRoute,
   AdminNewsletterRoute: AdminNewsletterRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminSalesRoute: AdminSalesRoute,

@@ -1,18 +1,19 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useSupabaseAuth } from "@/lib/db";
-import { LayoutDashboard, PackagePlus, FolderTree, Mail, BarChart3, LogOut, Menu, X, Sparkles, ShieldCheck, Lock, KeyRound, Wallet, Megaphone } from "lucide-react";
+import { LayoutDashboard, PackagePlus, FolderTree, Mail, BarChart3, LogOut, Menu, X, Sparkles, ShieldCheck, Lock, Wallet, Megaphone, Store, Flame } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — BundleByte" }, { name: "robots", content: "noindex,nofollow" }] }),
   component: AdminLayout,
 });
 
-const nav: Array<{ to: "/admin" | "/admin/products" | "/admin/keys" | "/admin/categories" | "/admin/budgets" | "/admin/announcements" | "/admin/sales" | "/admin/newsletter"; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
+const nav: Array<{ to: "/admin" | "/admin/products" | "/admin/trending" | "/admin/categories" | "/admin/brands" | "/admin/budgets" | "/admin/announcements" | "/admin/sales" | "/admin/newsletter"; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/products", label: "Products", icon: PackagePlus },
-  { to: "/admin/keys", label: "Keys", icon: KeyRound },
+  { to: "/admin/trending", label: "Trending Now", icon: Flame },
   { to: "/admin/categories", label: "Categories", icon: FolderTree },
+  { to: "/admin/brands", label: "Brands", icon: Store },
   { to: "/admin/budgets", label: "Budgets", icon: Wallet },
   { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { to: "/admin/sales", label: "Sales", icon: BarChart3 },

@@ -8,7 +8,7 @@ const sb = supabase as any;
 // Columns safe for public consumption (payment_link intentionally excluded — it
 // is fetched on demand via the get_product_payment_link RPC at checkout time).
 const PRODUCT_PUBLIC_COLUMNS =
-  "id,title,subtitle,description,category_id,price,old_price,image,is_key,platform,region,created_at";
+  "id,title,subtitle,description,category_id,brand_id,price,old_price,image,is_key,is_trending,platform,region,created_at";
 
 export async function fetchProductPaymentLink(productId: string): Promise<string> {
   const { data, error } = await sb.rpc("get_product_payment_link", { p_id: productId });
@@ -21,6 +21,14 @@ export type Category = {
   id: string;
   name: string;
   icon: string | null;
+  isKey: boolean;
+  createdAt: string;
+};
+
+export type Brand = {
+  id: string;
+  name: string;
+  icon: string | null;
   createdAt: string;
 };
 
@@ -30,11 +38,13 @@ export type Product = {
   subtitle: string;
   description: string;
   categoryId: string | null;
+  brandId: string | null;
   price: number;
   oldPrice: number | null;
   image: string;
   paymentLink: string;
   isKey: boolean;
+  isTrending: boolean;
   platform: string | null;
   region: string | null;
   createdAt: string;
@@ -60,6 +70,9 @@ export type SaleRow = {
 };
 
 function mapCategory(row: any): Category {
+  return { id: row.id, name: row.name, icon: row.icon, isKey: !!row.is_key, createdAt: row.created_at };
+}
+function mapBrand(row: any): Brand {
   return { id: row.id, name: row.name, icon: row.icon, createdAt: row.created_at };
 }
 function mapProduct(row: any): Product {
@@ -69,11 +82,13 @@ function mapProduct(row: any): Product {
     subtitle: row.subtitle ?? "",
     description: row.description ?? "",
     categoryId: row.category_id,
+    brandId: row.brand_id ?? null,
     price: Number(row.price ?? 0),
     oldPrice: row.old_price !== null && row.old_price !== undefined ? Number(row.old_price) : null,
     image: row.image ?? "",
     paymentLink: row.payment_link ?? "",
     isKey: !!row.is_key,
+    isTrending: !!row.is_trending,
     platform: row.platform ?? null,
     region: row.region ?? null,
     createdAt: row.created_at,
@@ -102,8 +117,19 @@ export function useCategories() {
     staleTime: 60_000,
   });
   const add = useMutation({
-    mutationFn: async (input: { name: string; icon?: string }) => {
-      const { error } = await sb.from("categories").insert({ name: input.name, icon: input.icon ?? null });
+    mutationFn: async (input: { name: string; icon?: string; isKey?: boolean }) => {
+      const { error } = await sb.from("categories").insert({ name: input.name, icon: input.icon ?? null, is_key: !!input.isKey });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
+  });
+  const update = useMutation({
+    mutationFn: async (input: { id: string; isKey?: boolean; name?: string; icon?: string | null }) => {
+      const patch: any = {};
+      if (input.isKey !== undefined) patch.is_key = input.isKey;
+      if (input.name !== undefined) patch.name = input.name;
+      if (input.icon !== undefined) patch.icon = input.icon;
+      const { error } = await sb.from("categories").update(patch).eq("id", input.id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
@@ -115,7 +141,36 @@ export function useCategories() {
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
   });
-  return { items: q.data ?? [], loading: q.isLoading, error: q.error as Error | null, add, remove };
+  return { items: q.data ?? [], loading: q.isLoading, error: q.error as Error | null, add, update, remove };
+}
+
+// ============== Brands ==============
+export function useBrands() {
+  const qc = useQueryClient();
+  const q = useQuery<Brand[]>({
+    queryKey: ["brands"],
+    queryFn: async () => {
+      const { data, error } = await sb.from("brands").select("*").order("name", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map(mapBrand);
+    },
+    staleTime: 60_000,
+  });
+  const add = useMutation({
+    mutationFn: async (input: { name: string; icon?: string }) => {
+      const { error } = await sb.from("brands").insert({ name: input.name, icon: input.icon ?? null });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["brands"] }),
+  });
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await sb.from("brands").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["brands"] }),
+  });
+  return { items: q.data ?? [], loading: q.isLoading, add, remove };
 }
 
 // ============== Products ==============
@@ -136,6 +191,7 @@ export function useProducts() {
       subtitle: string;
       description: string;
       categoryId: string;
+      brandId?: string | null;
       price: number;
       oldPrice?: number;
       image: string;
@@ -149,6 +205,7 @@ export function useProducts() {
         subtitle: input.subtitle,
         description: input.description,
         category_id: input.categoryId,
+        brand_id: input.brandId ?? null,
         price: input.price,
         old_price: input.oldPrice ?? null,
         image: input.image,
@@ -157,6 +214,15 @@ export function useProducts() {
         platform: input.platform ?? null,
         region: input.region ?? null,
       });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
+  });
+  const update = useMutation({
+    mutationFn: async (input: { id: string; isTrending?: boolean }) => {
+      const patch: any = {};
+      if (input.isTrending !== undefined) patch.is_trending = input.isTrending;
+      const { error } = await sb.from("products").update(patch).eq("id", input.id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
@@ -174,6 +240,7 @@ export function useProducts() {
     loaded: q.isFetched && !q.isLoading,
     error: q.error as Error | null,
     add,
+    update,
     remove,
   };
 }
@@ -389,9 +456,6 @@ export function useSupabaseAuth() {
       setIsAdmin(false);
       return;
     }
-    // Verify admin status against user_roles via the SECURITY DEFINER has_role
-    // RPC. The flag is informational for UI gating only — every sensitive write
-    // is re-checked server-side by RLS using has_role(auth.uid(), 'admin').
     sb.rpc("has_role", { _user_id: uid, _role: "admin" }).then(({ data, error }: any) => {
       if (cancelled) return;
       setIsAdmin(!error && data === true);
