@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, Minus, Sparkles, Tag, Flame, Wallet, HelpCircle, Store } from "lucide-react";
+import { Plus, Minus, Sparkles, Flame, Wallet, HelpCircle, Store } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ProductCard, type ProductCardData } from "@/components/site/ProductCard";
-import { useProducts, useBudgets } from "@/lib/db";
+import { useProducts, useBudgets, useBrands } from "@/lib/db";
 
 const HERO_BG = "https://i.ibb.co/21bcVVsW/Chat-GPT-Image-Jun-14-2026-11-36-52-AM.png";
 const LABEL = "https://i.ibb.co/4RJ8gC2L/Chat-GPT-Image-Jun-14-2026-12-40-24-PM-1.png";
@@ -106,6 +106,7 @@ function FaqItem({ q, a, defaultOpen = false }: { q: string; a: string; defaultO
 function Index() {
   const { items: dbProducts, loading } = useProducts();
   const { items: budgets } = useBudgets();
+  const { items: brands } = useBrands();
 
   const toCard = (p: typeof dbProducts[number]): ProductCardData => ({
     id: p.id,
@@ -117,9 +118,9 @@ function Index() {
   });
 
   const products = useMemo(() => dbProducts.filter((p) => !p.isKey).map(toCard), [dbProducts]);
-  const keyProducts = useMemo(() => dbProducts.filter((p) => p.isKey).map(toCard), [dbProducts]);
+  const trendingProducts = useMemo(() => dbProducts.filter((p) => p.isTrending).map(toCard), [dbProducts]);
   const hasProducts = products.length > 0;
-  const hasKeys = keyProducts.length > 0;
+  const hasTrending = trendingProducts.length > 0;
 
   const SkeletonCard = () => (
     <div className="rounded-2xl bg-white/60 border border-white/60 shadow-sm aspect-[4/5] animate-pulse" />
@@ -129,8 +130,6 @@ function Index() {
       {label}
     </div>
   );
-
-  const brands = ["Xbox", "PlayStation", "Unlock", "AI", "Switch", "Joy-Con"];
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
@@ -174,19 +173,19 @@ function Index() {
           </div>
         </section>
 
-        {/* Random keys */}
+        {/* Trending Now */}
         <section className="px-4 sm:px-6 md:px-12 py-10 sm:py-14">
-          <Reveal><SectionTitle icon={Tag}>Random keys</SectionTitle></Reveal>
+          <Reveal><SectionTitle icon={Flame}>Trending Now</SectionTitle></Reveal>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 max-w-6xl mx-auto mt-8 sm:mt-10">
-            {loading && !hasKeys
+            {loading && !hasTrending
               ? Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
-              : hasKeys
-              ? keyProducts.slice(0, 10).map((p, i) => (
-                  <Reveal key={p.id + "-r"} delay={i * 60}>
+              : hasTrending
+              ? trendingProducts.slice(0, 10).map((p, i) => (
+                  <Reveal key={p.id + "-t"} delay={i * 60}>
                     <ProductCard product={p} />
                   </Reveal>
                 ))
-              : <EmptyState label="No keys listed yet — add some from the admin panel." />}
+              : <EmptyState label="Nothing trending yet — pick featured products from the Trending Now admin section." />}
           </div>
         </section>
 
@@ -194,13 +193,22 @@ function Index() {
         <section className="px-4 sm:px-6 md:px-12 py-10 border-t border-gray-100">
           <Reveal><SectionTitle icon={Store}>Shop by brand</SectionTitle></Reveal>
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-8 max-w-5xl mx-auto">
-            {brands.map((b, i) => (
-              <Reveal key={b} delay={i * 50}>
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl backdrop-blur-xl bg-white/60 border border-white/60 shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_32px_rgba(168,85,247,0.18)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center text-gray-700 text-xs sm:text-sm font-bold tracking-tight">
-                  {b}
-                </div>
-              </Reveal>
-            ))}
+            {brands.length === 0 ? (
+              <EmptyState label="Brands will appear here once the admin adds them." />
+            ) : (
+              brands.map((b, i) => (
+                <Reveal key={b.id} delay={i * 50}>
+                  <Link
+                    to="/brand/$id"
+                    params={{ id: b.id }}
+                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl backdrop-blur-xl bg-white/60 border border-white/60 shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_32px_rgba(168,85,247,0.18)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col items-center justify-center gap-1 text-gray-700 text-[11px] sm:text-xs font-bold tracking-tight text-center px-2"
+                  >
+                    <span className="text-xl">{b.icon || "🏷️"}</span>
+                    <span className="truncate w-full">{b.name}</span>
+                  </Link>
+                </Reveal>
+              ))
+            )}
           </div>
         </section>
 

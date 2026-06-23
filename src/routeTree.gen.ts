@@ -20,11 +20,14 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
 import { Route as BudgetIdRouteImport } from './routes/budget.$id'
+import { Route as BrandIdRouteImport } from './routes/brand.$id'
+import { Route as AdminTrendingRouteImport } from './routes/admin.trending'
 import { Route as AdminSalesRouteImport } from './routes/admin.sales'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminNewsletterRouteImport } from './routes/admin.newsletter'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminBudgetsRouteImport } from './routes/admin.budgets'
+import { Route as AdminBrandsRouteImport } from './routes/admin.brands'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
 
 const TermsRoute = TermsRouteImport.update({
@@ -82,6 +85,16 @@ const BudgetIdRoute = BudgetIdRouteImport.update({
   path: '/budget/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrandIdRoute = BrandIdRouteImport.update({
+  id: '/brand/$id',
+  path: '/brand/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTrendingRoute = AdminTrendingRouteImport.update({
+  id: '/trending',
+  path: '/trending',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSalesRoute = AdminSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
@@ -107,6 +120,11 @@ const AdminBudgetsRoute = AdminBudgetsRouteImport.update({
   path: '/budgets',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBrandsRoute = AdminBrandsRouteImport.update({
+  id: '/brands',
+  path: '/brands',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
   id: '/announcements',
   path: '/announcements',
@@ -122,11 +140,14 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/brands': typeof AdminBrandsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sales': typeof AdminSalesRoute
+  '/admin/trending': typeof AdminTrendingRoute
+  '/brand/$id': typeof BrandIdRoute
   '/budget/$id': typeof BudgetIdRoute
   '/category/$id': typeof CategoryIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -140,11 +161,14 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/brands': typeof AdminBrandsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sales': typeof AdminSalesRoute
+  '/admin/trending': typeof AdminTrendingRoute
+  '/brand/$id': typeof BrandIdRoute
   '/budget/$id': typeof BudgetIdRoute
   '/category/$id': typeof CategoryIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -160,11 +184,14 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/brands': typeof AdminBrandsRoute
   '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sales': typeof AdminSalesRoute
+  '/admin/trending': typeof AdminTrendingRoute
+  '/brand/$id': typeof BrandIdRoute
   '/budget/$id': typeof BudgetIdRoute
   '/category/$id': typeof CategoryIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -181,11 +208,14 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/announcements'
+    | '/admin/brands'
     | '/admin/budgets'
     | '/admin/categories'
     | '/admin/newsletter'
     | '/admin/products'
     | '/admin/sales'
+    | '/admin/trending'
+    | '/brand/$id'
     | '/budget/$id'
     | '/category/$id'
     | '/product/$id'
@@ -199,11 +229,14 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/announcements'
+    | '/admin/brands'
     | '/admin/budgets'
     | '/admin/categories'
     | '/admin/newsletter'
     | '/admin/products'
     | '/admin/sales'
+    | '/admin/trending'
+    | '/brand/$id'
     | '/budget/$id'
     | '/category/$id'
     | '/product/$id'
@@ -218,11 +251,14 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/announcements'
+    | '/admin/brands'
     | '/admin/budgets'
     | '/admin/categories'
     | '/admin/newsletter'
     | '/admin/products'
     | '/admin/sales'
+    | '/admin/trending'
+    | '/brand/$id'
     | '/budget/$id'
     | '/category/$id'
     | '/product/$id'
@@ -237,6 +273,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  BrandIdRoute: typeof BrandIdRoute
   BudgetIdRoute: typeof BudgetIdRoute
   CategoryIdRoute: typeof CategoryIdRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -321,6 +358,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BudgetIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/brand/$id': {
+      id: '/brand/$id'
+      path: '/brand/$id'
+      fullPath: '/brand/$id'
+      preLoaderRoute: typeof BrandIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/trending': {
+      id: '/admin/trending'
+      path: '/trending'
+      fullPath: '/admin/trending'
+      preLoaderRoute: typeof AdminTrendingRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/sales': {
       id: '/admin/sales'
       path: '/sales'
@@ -356,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBudgetsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/brands': {
+      id: '/admin/brands'
+      path: '/brands'
+      fullPath: '/admin/brands'
+      preLoaderRoute: typeof AdminBrandsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/announcements': {
       id: '/admin/announcements'
       path: '/announcements'
@@ -368,21 +426,25 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
+  AdminBrandsRoute: typeof AdminBrandsRoute
   AdminBudgetsRoute: typeof AdminBudgetsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminNewsletterRoute: typeof AdminNewsletterRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminSalesRoute: typeof AdminSalesRoute
+  AdminTrendingRoute: typeof AdminTrendingRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAnnouncementsRoute: AdminAnnouncementsRoute,
+  AdminBrandsRoute: AdminBrandsRoute,
   AdminBudgetsRoute: AdminBudgetsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminNewsletterRoute: AdminNewsletterRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminSalesRoute: AdminSalesRoute,
+  AdminTrendingRoute: AdminTrendingRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
@@ -396,6 +458,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  BrandIdRoute: BrandIdRoute,
   BudgetIdRoute: BudgetIdRoute,
   CategoryIdRoute: CategoryIdRoute,
   ProductIdRoute: ProductIdRoute,
@@ -403,13 +466,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
