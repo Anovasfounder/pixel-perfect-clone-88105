@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Twitter, Youtube, Mail, Send, CheckCircle2, Heart } from "lucide-react";
+import { Instagram, Facebook, Mail, Send, CheckCircle2, Heart } from "lucide-react";
 import { useState } from "react";
 import { subscribeEmail } from "@/lib/db";
 
@@ -65,14 +65,19 @@ export function Footer() {
         </nav>
         <div className="flex items-center gap-3">
           {[
-            { Icon: Instagram, label: "Follow BundleByte on Instagram" },
-            { Icon: Twitter, label: "Follow BundleByte on Twitter" },
-            { Icon: Youtube, label: "Subscribe to BundleByte on YouTube" },
-            { Icon: Mail, label: "Email BundleByte support" },
-          ].map(({ Icon, label }) => (
-            <button key={label} aria-label={label} className="w-9 h-9 grid place-items-center rounded-full backdrop-blur-md bg-white/70 border border-white/60 shadow-sm hover:bg-fuchsia-50 hover:text-fuchsia-600 transition">
+            { Icon: Instagram, label: "Follow BundleByte on Instagram", href: "https://www.instagram.com/bundlebyte_store_" },
+            { Icon: Facebook, label: "Follow BundleByte on Facebook", href: "https://www.facebook.com/bundlebyteass/" },
+          ].map(({ Icon, label, href }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              className="w-9 h-9 grid place-items-center rounded-full backdrop-blur-md bg-white/70 border border-white/60 shadow-sm hover:bg-fuchsia-50 hover:text-fuchsia-600 transition"
+            >
               <Icon className="w-4 h-4" />
-            </button>
+            </a>
           ))}
         </div>
       </div>
