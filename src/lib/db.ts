@@ -407,22 +407,9 @@ export function useSales() {
   return { items: q.data ?? [], loading: q.isLoading };
 }
 
-export async function recordSale(input: {
-  productId: string | null;
-  productTitle: string;
-  customerName: string;
-  customerEmail: string;
-  amount: number;
-}) {
-  const { error } = await sb.from("sales").insert({
-    product_id: input.productId,
-    product_title: input.productTitle,
-    customer_name: input.customerName,
-    customer_email: input.customerEmail,
-    amount: input.amount,
-  });
-  if (error) throw error;
-}
+// Sales are recorded exclusively via the server-side createCheckout function
+// (service role), so there is no client-side insert helper.
+
 
 // ============== Auth (Supabase) — admin role verified server-side ==============
 export function useSupabaseAuth() {
