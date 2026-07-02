@@ -1,20 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { checkAdmin } from "@/lib/auth.functions";
 
 // Cast supabase to any for tables not yet in generated types
 const sb = supabase as any;
 
 // Columns safe for public consumption (payment_link intentionally excluded — it
-// is fetched on demand via the get_product_payment_link RPC at checkout time).
+// is fetched server-side during checkout via the createCheckout server fn).
 const PRODUCT_PUBLIC_COLUMNS =
   "id,title,subtitle,description,category_id,brand_id,price,old_price,image,is_key,is_trending,platform,region,created_at";
-
-export async function fetchProductPaymentLink(productId: string): Promise<string> {
-  const { data, error } = await sb.rpc("get_product_payment_link", { p_id: productId });
-  if (error) throw error;
-  return typeof data === "string" ? data : "";
-}
 
 // ============== Types ==============
 export type Category = {
