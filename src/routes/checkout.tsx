@@ -65,23 +65,14 @@ function CheckoutPage() {
     setSubmitError("");
     if (!product) return;
     try {
-      await recordSale({
-        productId: product.id,
-        productTitle: product.title,
-        customerName: form.name,
-        customerEmail: form.email,
-        amount: product.price,
+      const result = await createCheckout({
+        data: { productId: product.id, name: form.name, email: form.email },
       });
-    } catch {
-      // continue — fulfilment uses the verified payment link below
-    }
-    try {
-      const link = await fetchProductPaymentLink(product.id);
-      if (!link || !/^https:\/\//i.test(link)) {
+      if (!result.paymentLink) {
         setSubmitError("Payment is temporarily unavailable for this product. Please try again later.");
         return;
       }
-      setPaymentLink(link);
+      setPaymentLink(result.paymentLink);
       setReady(true);
     } catch {
       setSubmitError("Could not start payment. Please try again.");
