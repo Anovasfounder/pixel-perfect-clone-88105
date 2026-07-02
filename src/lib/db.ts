@@ -438,11 +438,14 @@ export function useSupabaseAuth() {
       setIsAdmin(false);
       return;
     }
-    sb.rpc("has_role", { _user_id: uid, _role: "admin" }).then(({ data, error }: any) => {
-
-      if (cancelled) return;
-      setIsAdmin(!error && data === true);
-    });
+    checkAdmin()
+      .then((res) => {
+        if (cancelled) return;
+        setIsAdmin(!!res?.isAdmin);
+      })
+      .catch(() => {
+        if (!cancelled) setIsAdmin(false);
+      });
     return () => {
       cancelled = true;
     };
