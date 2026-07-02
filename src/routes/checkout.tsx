@@ -6,7 +6,8 @@ import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ShieldCheck, ArrowRight, CheckCircle2, Mail, User as UserIcon, ExternalLink } from "lucide-react";
-import { recordSale, fetchProductPaymentLink } from "@/lib/db";
+import { useProduct } from "@/lib/db";
+import { createCheckout } from "@/lib/checkout.functions";
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>) => ({
