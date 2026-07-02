@@ -6,7 +6,8 @@ import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { Reveal } from "@/components/site/Reveal";
 import { ShieldCheck, ArrowRight, CheckCircle2, Mail, User as UserIcon, ExternalLink } from "lucide-react";
-import { recordSale, fetchProductPaymentLink } from "@/lib/db";
+import { useProduct } from "@/lib/db";
+import { createCheckout } from "@/lib/checkout.functions";
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -30,8 +31,17 @@ function CheckoutPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
 
-  const product = search.productId && search.title && search.price
-    ? { id: search.productId, title: search.title, price: Number(search.price), image: search.image }
+  // Server-authoritative product data — the URL price is only a hint and is
+  // never trusted for display or the recorded sale.
+  const { data: dbProduct } = useProduct(search.productId);
+
+  const product = search.productId && (dbProduct || search.title)
+    ? {
+        id: search.productId,
+        title: dbProduct?.title ?? search.title ?? "",
+        price: dbProduct ? dbProduct.price : Number(search.price) || 0,
+        image: dbProduct?.image ?? search.image,
+      }
     : null;
 
   const [form, setForm] = useState({ name: "", email: "" });
@@ -55,23 +65,14 @@ function CheckoutPage() {
     setSubmitError("");
     if (!product) return;
     try {
-      await recordSale({
-        productId: product.id,
-        productTitle: product.title,
-        customerName: form.name,
-        customerEmail: form.email,
-        amount: product.price,
+      const result = await createCheckout({
+        data: { productId: product.id, name: form.name, email: form.email },
       });
-    } catch {
-      // continue — fulfilment uses the verified payment link below
-    }
-    try {
-      const link = await fetchProductPaymentLink(product.id);
-      if (!link || !/^https:\/\//i.test(link)) {
+      if (!result.paymentLink) {
         setSubmitError("Payment is temporarily unavailable for this product. Please try again later.");
         return;
       }
-      setPaymentLink(link);
+      setPaymentLink(result.paymentLink);
       setReady(true);
     } catch {
       setSubmitError("Could not start payment. Please try again.");

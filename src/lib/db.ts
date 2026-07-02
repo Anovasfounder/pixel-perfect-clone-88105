@@ -1,20 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { checkAdmin } from "@/lib/auth.functions";
 
 // Cast supabase to any for tables not yet in generated types
 const sb = supabase as any;
 
 // Columns safe for public consumption (payment_link intentionally excluded — it
-// is fetched on demand via the get_product_payment_link RPC at checkout time).
+// is fetched server-side during checkout via the createCheckout server fn).
 const PRODUCT_PUBLIC_COLUMNS =
   "id,title,subtitle,description,category_id,brand_id,price,old_price,image,is_key,is_trending,platform,region,created_at";
-
-export async function fetchProductPaymentLink(productId: string): Promise<string> {
-  const { data, error } = await sb.rpc("get_product_payment_link", { p_id: productId });
-  if (error) throw error;
-  return typeof data === "string" ? data : "";
-}
 
 // ============== Types ==============
 export type Category = {
@@ -412,22 +407,9 @@ export function useSales() {
   return { items: q.data ?? [], loading: q.isLoading };
 }
 
-export async function recordSale(input: {
-  productId: string | null;
-  productTitle: string;
-  customerName: string;
-  customerEmail: string;
-  amount: number;
-}) {
-  const { error } = await sb.from("sales").insert({
-    product_id: input.productId,
-    product_title: input.productTitle,
-    customer_name: input.customerName,
-    customer_email: input.customerEmail,
-    amount: input.amount,
-  });
-  if (error) throw error;
-}
+// Sales are recorded exclusively via the server-side createCheckout function
+// (service role), so there is no client-side insert helper.
+
 
 // ============== Auth (Supabase) — admin role verified server-side ==============
 export function useSupabaseAuth() {
@@ -456,10 +438,14 @@ export function useSupabaseAuth() {
       setIsAdmin(false);
       return;
     }
-    sb.rpc("has_role", { _user_id: uid, _role: "admin" }).then(({ data, error }: any) => {
-      if (cancelled) return;
-      setIsAdmin(!error && data === true);
-    });
+    checkAdmin()
+      .then((res) => {
+        if (cancelled) return;
+        setIsAdmin(!!res?.isAdmin);
+      })
+      .catch(() => {
+        if (!cancelled) setIsAdmin(false);
+      });
     return () => {
       cancelled = true;
     };
