@@ -31,8 +31,17 @@ function CheckoutPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
 
-  const product = search.productId && search.title && search.price
-    ? { id: search.productId, title: search.title, price: Number(search.price), image: search.image }
+  // Server-authoritative product data — the URL price is only a hint and is
+  // never trusted for display or the recorded sale.
+  const { data: dbProduct } = useProduct(search.productId);
+
+  const product = search.productId && (dbProduct || search.title)
+    ? {
+        id: search.productId,
+        title: dbProduct?.title ?? search.title ?? "",
+        price: dbProduct ? dbProduct.price : Number(search.price) || 0,
+        image: dbProduct?.image ?? search.image,
+      }
     : null;
 
   const [form, setForm] = useState({ name: "", email: "" });
