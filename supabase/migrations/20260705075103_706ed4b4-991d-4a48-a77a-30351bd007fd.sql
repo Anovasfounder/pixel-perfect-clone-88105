@@ -1,0 +1,1 @@
+CREATE POLICY "Only admins can insert sales" ON public.sales FOR INSERT TO authenticated WITH CHECK (private.has_role(auth.uid(), 'admin'::app_role));
